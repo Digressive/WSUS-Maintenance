@@ -73,6 +73,8 @@ The password for the user account.
 ```
 Connect to the SMTP server using SSL.
 
+### Example
+
 ```
 Wsus-Maintenance.ps1 -Server wsus01 -Port 8530 -L E:\scripts -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.contoso.com -User me@contoso.com -Pwd P@ssw0rd -UseSsl
 ```
