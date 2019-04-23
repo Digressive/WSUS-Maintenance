@@ -1,4 +1,5 @@
 # Automated WSUS Maintenance
+
 PowerShell script to run the maintenance routines for Windows Server Update Services
 
 Automated WSUS Maintenance can also be downloaded from:
@@ -9,7 +10,7 @@ Automated WSUS Maintenance can also be downloaded from:
 
 -Mike
 
-Tweet me if you have questions: [@Digressive](https://twitter.com/digressive)
+Tweet me if you have questions: [@mikegalvin_](https://twitter.com/mikegalvin_)
 
 ## Features and Requirements
 

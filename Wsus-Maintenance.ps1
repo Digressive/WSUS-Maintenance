@@ -4,7 +4,7 @@
 
 .GUID 56dc6e4a-4f05-414c-9419-c575f17f581f
 
-.AUTHOR Mike Galvin twitter.com/digressive
+.AUTHOR Mike Galvin twitter.com/mikegalvin_
 
 .COMPANYNAME
 
