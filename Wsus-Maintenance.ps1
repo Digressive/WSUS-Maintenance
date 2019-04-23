@@ -1,6 +1,6 @@
 ﻿<#PSScriptInfo
 
-.VERSION 1.6
+.VERSION 1.7
 
 .GUID 56dc6e4a-4f05-414c-9419-c575f17f581f
 
@@ -122,27 +122,47 @@ If ($LogPath)
     Add-Content -Path $Log -Value ""
 }
 
-## Logging
-If ($LogPath)
+Function WsusMaintCmd
 {
-    Add-Content -Path $Log -Value "$(Get-Date -Format G) WSUS maintenance routine starting..."
-    Add-Content -Path $Log -Value ""
+    Get-WsusServer -Name $WsusServer -PortNumber $WsusPort | Invoke-WsusServerCleanup -CleanupObsoleteComputers -CleanupObsoleteUpdates -CleanupUnneededContentFiles -CompressUpdates -DeclineExpiredUpdates -DeclineSupersededUpdates
 }
 
-## Get the WSUS server configured and perform the maintainence operations
-$WsusMaintCmd = Get-WsusServer | Invoke-WsusServerCleanup -CleanupObsoleteComputers -CleanupObsoleteUpdates -CleanupUnneededContentFiles -CompressUpdates -DeclineExpiredUpdates -DeclineSupersededUpdates
+## Get the WSUS service information
+$SvcName = "WsusService"
+$GetSvc = Get-Service -Name $SvcName
 
-Get-WsusServer -Name $WsusServer -PortNumber $WsusPort
-
-## Logging
+## Logging enabled
 If ($LogPath)
 {
-    $WsusMaintCmd | Out-File -Append $Log -Encoding ASCII
+    ## Check the WSUS service status
+    If ($GetSvc.Status -eq "Running")
+    {
+        Add-Content -Path $Log -Value "WSUS maintenance routine starting..."
+        Write-Host "WSUS maintenance routine starting..."
+        WsusMaintCmd | Out-File -Append $Log -Encoding ASCII
+    }
+
+    Else
+    {
+        Add-Content -Path $Log -Value "Error: WSUS Service is not running!"
+        Write-Host "Error: WSUS Service is not running!"
+    }
 }
 
+## Logging not enabled
 Else
 {
-    $WsusMaintCmd
+    ## Check the WSUS service status
+    If ($GetSvc.Status -eq "Running")
+    {
+        Write-Host "WSUS maintenance routine starting..."
+        WsusMaintCmd
+    }
+
+    Else
+    {
+        Write-Host "Error: WSUS Service is not running!"
+    }
 }
 
 ## If log was configured stop the log
