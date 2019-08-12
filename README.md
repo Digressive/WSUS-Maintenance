@@ -77,6 +77,6 @@ Connect to the SMTP server using SSL.
 ### Example
 
 ```
-Wsus-Maintenance.ps1 -Server wsus01 -Port 8530 -L E:\scripts -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.contoso.com -User me@contoso.com -Pwd P@ssw0rd -UseSsl
+Wsus-Maintenance.ps1 -Server wsus01 -Port 8530 -L C:\scripts\logs -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.contoso.com -User me@contoso.com -Pwd P@ssw0rd -UseSsl
 ```
-This will run the maintenance on the WSUS server on wsus01 hosted on port 8530. A log will be output to E:\scripts and e-mailed via a authenticated smtp server using ssl.
+This will run the maintenance on the WSUS server on wsus01 hosted on port 8530. A log will be output to C:\scripts\logs and e-mailed via a authenticated smtp server using ssl.
