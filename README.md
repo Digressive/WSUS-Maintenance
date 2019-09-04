@@ -26,7 +26,7 @@ The password used for SMTP server authentication must be in an encrypted text fi
 
 Please note: This is only required if you need to authenticate to the SMTP server when send the log via e-mail.
 
-```
+``` powershell
 $creds = Get-Credential
 $creds.Password | ConvertFrom-SecureString | Set-Content c:\scripts\ps-script-pwd.txt
 ```
@@ -37,46 +37,70 @@ After running the commands, you will have a text file containing the encrypted p
 
 Here’s a list of all the command line switches and example configurations.
 
-```
+``` txt
 -Server
 ```
+
 The WSUS server to run the maintenance routine on.
-``` 
+
+``` txt
 -Port
 ```
+
 The port WSUS is running on.
-```
+
+``` txt
 -L
 ```
+
 The path to output the log file to. The file name will be Wsus-Maintenance.log
+
+``` txt
+-Subject
 ```
+
+The email subject that the email should have. Encapulate with single or double quotes.
+
+``` txt
 -SendTo
 ```
+
 The e-mail address the log should be sent to.
-```
+
+``` txt
 -From
 ```
+
 The from address the log should be sent from.
-```
+
+``` txt
 -Smtp
 ```
+
 The DNS name or IP address of the SMTP server.
-```
+
+``` txt
 -User
 ```
+
 The user account to connect to the SMTP server.
-```
+
+``` txt
 -Pwd
 ```
+
 The password for the user account.
-```
+
+``` txt
 -UseSsl
 ```
+
 Connect to the SMTP server using SSL.
 
 ### Example
 
+``` txt
+Wsus-Maintenance.ps1 -Server wsus01 -Port 8530 -L C:\scripts\logs -Subject 'Server: WSUS Cleanup' -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.contoso.com -User me@contoso.com -Pwd P@ssw0rd -UseSsl
 ```
-Wsus-Maintenance.ps1 -Server wsus01 -Port 8530 -L C:\scripts\logs -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.contoso.com -User me@contoso.com -Pwd P@ssw0rd -UseSsl
-```
-This will run the maintenance on the WSUS server on wsus01 hosted on port 8530. A log will be output to C:\scripts\logs and e-mailed via a authenticated smtp server using ssl.
+
+This will run the maintenance on the WSUS server on wsus01 hosted on port 8530. A log will be output to C:\scripts\logs and e-mailed with a custom subject line, via an authenticated smtp server using ssl.

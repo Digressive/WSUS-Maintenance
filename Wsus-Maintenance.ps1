@@ -1,12 +1,12 @@
 ﻿<#PSScriptInfo
 
-.VERSION 1.7
+.VERSION 1.8
 
 .GUID 56dc6e4a-4f05-414c-9419-c575f17f581f
 
 .AUTHOR Mike Galvin Contact: mike@gal.vin twitter.com/mikegalvin_
 
-.COMPANYNAME
+.COMPANYNAME Mike Galvin
 
 .COPYRIGHT (C) Mike Galvin. All rights reserved.
 
@@ -58,6 +58,9 @@
     The path to output the log file to.
     The file name will be Wsus-Maintenance.log
 
+    .PARAMETER Subject
+    The email subject that the email should have. Encapulate with single or double quotes.
+
     .PARAMETER SendTo
     The e-mail address the log should be sent to.
 
@@ -77,8 +80,8 @@
     Connect to the SMTP server using SSL.
 
     .EXAMPLE
-    Wsus-Maintenance.ps1 -Server wsus01 -Port 8530 -L C:\scripts\logs -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.contoso.com -User me@contoso.com -Pwd P@ssw0rd -UseSsl
-    This will run the maintenance on the WSUS server on wsus01 hosted on port 8530. A log will be output to C:\scripts\logs and e-mailed via a authenticated smtp server using ssl.  
+    Wsus-Maintenance.ps1 -Server wsus01 -Port 8530 -L C:\scripts\logs -Subject 'Server: WSUS Cleanup' -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.contoso.com -User me@contoso.com -Pwd P@ssw0rd -UseSsl
+    This will run the maintenance on the WSUS server on wsus01 hosted on port 8530. A log will be output to C:\scripts\logs and e-mailed with a custom subject line, via a authenticated smtp server using ssl.
 #>
 
 [CmdletBinding()]
@@ -91,6 +94,8 @@ Param(
     $WsusPort,
     [alias("L")]
     $LogPath,
+    [alias("Subject")]
+    $MailSubject,
     [alias("SendTo")]
     $MailTo,
     [alias("From")]
@@ -175,7 +180,12 @@ If ($LogPath)
     ## If email was configured, set the variables for the email subject and body
     If ($SmtpServer)
     {
-        $MailSubject = "WSUS Maintenance"
+        # If no subject is set, use the string below
+        If ($Null -eq $MailSubject)
+        {
+            $MailSubject = "WSUS Maintenance"
+        }
+
         $MailBody = Get-Content -Path $Log | Out-String
 
         ## If an email password was configured, create a variable with the username and password
