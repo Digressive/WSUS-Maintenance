@@ -2,15 +2,21 @@
 
 PowerShell script to run the maintenance routines for Windows Server Update Services
 
+For full instructions and documentation, [visit my blog post](https://gal.vin/2017/08/28/automate-wsus-maintenance)
+
+Please consider donating to support my work:
+
+* You can support me on a monthly basis [using Patreon.](https://www.patreon.com/mikegalvin)
+* You can support me with a one-time payment [using PayPal](https://www.paypal.me/digressive) or by [using Kofi.](https://ko-fi.com/mikegalvin)
+
 Automated WSUS Maintenance can also be downloaded from:
 
 * [The Microsoft TechNet Gallery](https://gallery.technet.microsoft.com/WSUS-Maintenance-w-logging-d507a15a?redir=0)
 * [The PowerShell Gallery](https://www.powershellgallery.com/packages/Wsus-Maintenance)
-* For full instructions and documentation, [visit my blog post](https://gal.vin/2017/08/28/automate-wsus-maintenance)
-
--Mike
 
 Tweet me if you have questions: [@mikegalvin_](https://twitter.com/mikegalvin_)
+
+-Mike
 
 ## Features and Requirements
 
