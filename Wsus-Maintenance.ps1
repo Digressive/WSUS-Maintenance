@@ -1,10 +1,10 @@
 ﻿<#PSScriptInfo
 
-.VERSION 1.8
+.VERSION 20.03.03
 
 .GUID 56dc6e4a-4f05-414c-9419-c575f17f581f
 
-.AUTHOR Mike Galvin Contact: mike@gal.vin twitter.com/mikegalvin_
+.AUTHOR Mike Galvin Contact: mike@gal.vin / twitter.com/mikegalvin_
 
 .COMPANYNAME Mike Galvin
 
@@ -18,7 +18,7 @@
 
 .ICONURI
 
-.EXTERNALMODULEDEPENDENCIES WSUS Management PowerShell module.
+.EXTERNALMODULEDEPENDENCIES
 
 .REQUIREDSCRIPTS
 
@@ -30,69 +30,80 @@
 
 <#
     .SYNOPSIS
-    Runs the maintenance/clean up routine for WSUS.
+    WSUS Maintenance Utility - Clean up your WSUS.
 
     .DESCRIPTION
-    Runs the maintenance/clean up routine for WSUS.
+    Runs the built-in maintenance/clean up routine for WSUS.
+    The device that the script is being run on must have the WSUS management tools installed.
 
-    This script will:
-    
-    Run the WSUS server clean up process, which will delete obsolete updates, as well as declining expired and superseded updates.
-    It can also optionally create a log file and email the log file to an address of your choice.
+    To send a log file via e-mail using ssl and an SMTP password you must generate an encrypted password file.
+    The password file is unique to both the user and machine.
 
-    Please note: to send a log file using ssl and an SMTP password you must generate an encrypted
-    password file. The password file is unique to both the user and machine.
-    
-    The command is as follows:
+    To create the password file run this command as the user and on the machine that will use the file:
 
     $creds = Get-Credential
     $creds.Password | ConvertFrom-SecureString | Set-Content c:\foo\ps-script-pwd.txt
-        
+
     .PARAMETER Server
     The WSUS server to run the maintenance routine on.
-    
+
     .PARAMETER Port
-    The port WSUS is running on.
+    The port WSUS is running on the server.
+    If you do not configure this, the default port of 8530 will be used.
+    If the WsusSSL switch is used the default port will be 8531.
+
+    .PARAMETER WsusSsl
+    Use this option if your WSUS server uses SSL.
+
+    .PARAMETER NoBanner
+    Use this option to hide the ASCII art title in the console.
 
     .PARAMETER L
     The path to output the log file to.
-    The file name will be Wsus-Maintenance.log
+    The file name will be WSUS-Maint_YYYY-MM-dd_HH-mm-ss.log
+    Do not add a trailing \ backslash.
 
     .PARAMETER Subject
-    The email subject that the email should have. Encapulate with single or double quotes.
+    The subject line for the e-mail log.
+    Encapsulate with single or double quotes.
+    If no subject is specified, the default of "WSUS Maintenance Utility Log" will be used.
 
     .PARAMETER SendTo
     The e-mail address the log should be sent to.
 
     .PARAMETER From
-    The from address the log should be sent from.
+    The e-mail address the log should be sent from.
 
     .PARAMETER Smtp
     The DNS name or IP address of the SMTP server.
 
     .PARAMETER User
-    The user account to connect to the SMTP server.
+    The user account to authenticate to the SMTP server.
 
     .PARAMETER Pwd
-    The password for the user account.
+    The txt file containing the encrypted password for SMTP authentication.
 
     .PARAMETER UseSsl
-    Connect to the SMTP server using SSL.
+    Configures the utility to connect to the SMTP server using SSL.
 
     .EXAMPLE
-    Wsus-Maintenance.ps1 -Server wsus01 -Port 8530 -L C:\scripts\logs -Subject 'Server: WSUS Cleanup' -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.contoso.com -User me@contoso.com -Pwd P@ssw0rd -UseSsl
-    This will run the maintenance on the WSUS server on wsus01 hosted on port 8530. A log will be output to C:\scripts\logs and e-mailed with a custom subject line, via a authenticated smtp server using ssl.
+    WSUS-Maintenance.ps1 -Server wsus01 -Port 8530 -L C:\scripts\logs -Subject 'Server: WSUS Cleanup'
+    -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.outlook.com -User me@contoso.com -Pwd C:\foo\pwd.txt -UseSsl
+
+    The above command will run the built-in maintenance on the WSUS server wsus01 hosted on port 8530.
+    The log file will be output to C:\scripts\logs and sent via e-mail with a custom subject line.
 #>
 
+## Set up command line switches.
 [CmdletBinding()]
 Param(
     [parameter(Mandatory=$True)]
     [alias("Server")]
     $WsusServer,
-    [parameter(Mandatory=$True)]
     [alias("Port")]
     $WsusPort,
     [alias("L")]
+    [ValidateScript({Test-Path $_ -PathType 'Container'})]
     $LogPath,
     [alias("Subject")]
     $MailSubject,
@@ -105,111 +116,254 @@ Param(
     [alias("User")]
     $SmtpUser,
     [alias("Pwd")]
+    [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
     $SmtpPwd,
-    [switch]$UseSsl)
+    [switch]$WsusSsl,
+    [switch]$UseSsl,
+    [switch]$NoBanner)
 
-## If logging is configured, start log
+If ($NoBanner -eq $False)
+{
+    Write-Host -Object ""
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                                                                                   "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  o       o  o-o  o   o  o-o      o   o             o                              "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |       | |     |   | |         |\ /|     o       |                              "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  o   o   o  o-o  |   |  o-o      | O |  oo   o-o  -o- o-o o-o   oo o-o   o-o o-o  "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "   \ / \ /      | |   |     |     |   | | | | |  |  |  |-' |  | | | |  | |    |-'  "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "    o   o   o--o   o-o  o--o      o   o o-o-| o  o  o  o-o o  o o-o-o  o  o-o o-o  "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                                                                                   "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  o   o  o    o    o                                                               "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   |  |  o | o  |                                                               "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   | -o-   |   -o- o  o                                                         "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   |  |  | | |  |  |  |                 Version 20.03.03 =                      "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "   o-o   o  | o |  o  o--O                                                         "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                         |            Mike Galvin   https://gal.vin                "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                      o--o                                                         "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                                                                                   "
+    Write-Host -Object ""
+}
+
+## If logging is configured, start logging.
+## If the log file already exists, clear it.
 If ($LogPath)
 {
-    $LogFile = "Wsus-Maintenance.log"
+    $LogFile = ("WSUS-Maint_{0:yyyy-MM-dd_HH-mm-ss}.log" -f (Get-Date))
     $Log = "$LogPath\$LogFile"
 
-    ## If the log file already exists, clear it
     $LogT = Test-Path -Path $Log
+
     If ($LogT)
     {
         Clear-Content -Path $Log
     }
 
-    Add-Content -Path $Log -Value "****************************************"
-    Add-Content -Path $Log -Value "$(Get-Date -Format G) Log started"
-    Add-Content -Path $Log -Value ""
+    Add-Content -Path $Log -Encoding ASCII -Value "$(Get-Date -Format "yyyy-MM-dd HH:mm:ss") [INFO] Log started"
 }
 
-Function WsusMaintCmd
+## Function to get date in specific format.
+Function Get-DateFormat
 {
-    Get-WsusServer -Name $WsusServer -PortNumber $WsusPort | Invoke-WsusServerCleanup -CleanupObsoleteComputers -CleanupObsoleteUpdates -CleanupUnneededContentFiles -CompressUpdates -DeclineExpiredUpdates -DeclineSupersededUpdates
+    Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 }
 
-## Get the WSUS service information
-$SvcName = "WsusService"
-$GetSvc = Get-Service -Name $SvcName
-
-## Logging enabled
-If ($LogPath)
+## Function for logging.
+Function Write-Log($Type, $Event)
 {
-    ## Check the WSUS service status
-    If ($GetSvc.Status -eq "Running")
+    If ($Type -eq "Info")
     {
-        Add-Content -Path $Log -Value "WSUS maintenance routine starting..."
-        Write-Host "WSUS maintenance routine starting..."
-        WsusMaintCmd | Out-File -Append $Log -Encoding ASCII
-    }
-
-    Else
-    {
-        Add-Content -Path $Log -Value "Error: WSUS Service is not running!"
-        Write-Host "Error: WSUS Service is not running!"
-    }
-}
-
-## Logging not enabled
-Else
-{
-    ## Check the WSUS service status
-    If ($GetSvc.Status -eq "Running")
-    {
-        Write-Host "WSUS maintenance routine starting..."
-        WsusMaintCmd
-    }
-
-    Else
-    {
-        Write-Host "Error: WSUS Service is not running!"
-    }
-}
-
-## If log was configured stop the log
-If ($LogPath)
-{
-    ## If log was configured stop the log
-    Add-Content -Path $Log -Value ""
-    Add-Content -Path $Log -Value "$(Get-Date -Format G) Log finished"
-    Add-Content -Path $Log -Value "****************************************"
-
-    ## If email was configured, set the variables for the email subject and body
-    If ($SmtpServer)
-    {
-        # If no subject is set, use the string below
-        If ($Null -eq $MailSubject)
+        If ($Null -ne $LogPath)
         {
-            $MailSubject = "WSUS Maintenance"
+            Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [INFO] $Event"
+        }
+        
+        Write-Host -Object "$(Get-DateFormat) [INFO] $Event"
+    }
+
+    If ($Type -eq "Succ")
+    {
+        If ($Null -ne $LogPath)
+        {
+            Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [SUCCESS] $Event"
         }
 
+        Write-Host -ForegroundColor Green -Object "$(Get-DateFormat) [SUCCESS] $Event"
+    }
+
+    If ($Type -eq "Err")
+    {
+        If ($Null -ne $LogPath)
+        {
+            Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [ERROR] $Event"
+        }
+
+        Write-Host -ForegroundColor Red -BackgroundColor Black -Object "$(Get-DateFormat) [ERROR] $Event"
+    }
+
+    If ($Type -eq "Conf")
+    {
+        If ($Null -ne $LogPath)
+        {
+            Add-Content -Path $Log -Encoding ASCII -Value "$Event"
+        }
+
+        Write-Host -ForegroundColor Cyan -Object "$Event"
+    }
+}
+
+##
+## Display the current config and log if configured.
+##
+Write-Log -Type Conf -Event "************ Running with the following config *************."
+Write-Log -Type Conf -Event "WSUS Server name:......$WsusServer."
+If ($WsusPort)
+{
+    Write-Log -Type Conf -Event "WSUS Server port:......$WsusPort."
+}
+
+If ($Null -eq $WsusPort -And $WsusSsl -eq $False)
+{
+    Write-Log -Type Conf -Event "WSUS Server port:......Default (8530)"
+}
+
+else {
+    Write-Log -Type Conf -Event "WSUS Server port:......Default (8531)"
+}
+
+Write-Log -Type Conf -Event "-WsusSSL switch is:....$WsusSsl."
+
+If ($Null -ne $LogPath)
+{
+    Write-Log -Type Conf -Event "Logs directory:........$LogPath."
+}
+
+else {
+    Write-Log -Type Conf -Event "Logs directory:........No Config"
+}
+
+If ($MailTo)
+{
+    Write-Log -Type Conf -Event "E-mail log to:.........$MailTo."
+}
+
+else {
+    Write-Log -Type Conf -Event "E-mail log to:.........No Config"
+}
+
+If ($MailFrom)
+{
+    Write-Log -Type Conf -Event "E-mail log from:.......$MailFrom."
+}
+
+else {
+    Write-Log -Type Conf -Event "E-mail log from:.......No Config"
+}
+
+If ($MailSubject)
+{
+    Write-Log -Type Conf -Event "E-mail subject:........$MailSubject."
+}
+
+else {
+    Write-Log -Type Conf -Event "E-mail subject:........Default"
+}
+
+If ($SmtpServer)
+{
+    Write-Log -Type Conf -Event "SMTP server is:........$SmtpServer."
+}
+
+else {
+    Write-Log -Type Conf -Event "SMTP server is:........No Config"
+}
+
+If ($SmtpUser)
+{
+    Write-Log -Type Conf -Event "SMTP user is:..........$SmtpUser."
+}
+
+else {
+    Write-Log -Type Conf -Event "SMTP user is:..........No Config"
+}
+
+If ($SmtpPwd)
+{
+    Write-Log -Type Conf -Event "SMTP pwd file:.........$SmtpPwd."
+}
+
+else {
+    Write-Log -Type Conf -Event "SMTP pwd file:.........No Config"
+}
+
+Write-Log -Type Conf -Event "-UseSSL switch is:.....$UseSsl."
+Write-Log -Type Conf -Event "************************************************************"
+Write-Log -Type Info -Event "Process started"
+##
+## Display current config ends here.
+##
+
+## Default port if none is configured.
+If ($Null -eq $WsusPort -And $WsusSsl -eq $False)
+{
+    $WsusPort = "8530"
+}
+
+else {
+    $WsusPort = "8531"
+}
+
+## If the WsusSsl switch is configured then connect to the WSUS server using SSL.
+If ($WsusSsl)
+{
+    Write-Log -Type Info -Event "Connecting to WSUS server using SSL"
+    Write-Log -Type Info -Event "WSUS maintenance routine starting..."
+    Get-WsusServer -Name $WsusServer -PortNumber $WsusPort -UseSSL | Invoke-WsusServerCleanup -CleanupObsoleteComputers -CleanupObsoleteUpdates -CleanupUnneededContentFiles -CompressUpdates -DeclineExpiredUpdates -DeclineSupersededUpdates | Out-File -Append $Log -Encoding ASCII
+}
+
+else {
+    Write-Log -Type Info -Event "Connecting to WSUS server"
+    Write-Log -Type Info -Event "WSUS maintenance routine starting..."
+    Get-WsusServer -Name $WsusServer -PortNumber $WsusPort | Invoke-WsusServerCleanup -CleanupObsoleteComputers -CleanupObsoleteUpdates -CleanupUnneededContentFiles -CompressUpdates -DeclineExpiredUpdates -DeclineSupersededUpdates | Out-File -Append $Log -Encoding ASCII
+}
+
+Write-Log -Type Info -Event "Process finished"
+
+## If logging is configured then finish the log file.
+If ($LogPath)
+{
+    Add-Content -Path $Log -Encoding ASCII -Value "$(Get-Date -Format "yyyy-MM-dd HH:mm:ss") [INFO] Log finished"
+
+    ## This whole block is for e-mail, if it is configured.
+    If ($SmtpServer)
+    {
+        ## Default e-mail subject if none is configured.
+        If ($Null -eq $MailSubject)
+        {
+            $MailSubject = "WSUS Maintenance Utility Log"
+        }
+
+        ## Setting the contents of the log to be the e-mail body. 
         $MailBody = Get-Content -Path $Log | Out-String
 
-        ## If an email password was configured, create a variable with the username and password
+        ## If an smtp password is configured, get the username and password together for authentication.
+        ## If an smtp password is not provided then send the e-mail without authentication and obviously no SSL.
         If ($SmtpPwd)
         {
             $SmtpPwdEncrypt = Get-Content $SmtpPwd | ConvertTo-SecureString
             $SmtpCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ($SmtpUser, $SmtpPwdEncrypt)
 
-            ## If ssl was configured, send the email with ssl
+            ## If -ssl switch is used, send the email with SSL.
+            ## If it isn't then don't use SSL, but still authenticate with the credentials.
             If ($UseSsl)
             {
                 Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -UseSsl -Credential $SmtpCreds
             }
 
-            ## If ssl wasn't configured, send the email without ssl
-            Else
-            {
+            else {
                 Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Credential $SmtpCreds
             }
         }
-    
-        ## If an email username and password were not configured, send the email without authentication
-        Else
-        {
+
+        else {
             Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer
         }
     }

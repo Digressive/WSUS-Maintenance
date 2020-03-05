@@ -1,18 +1,33 @@
-# Automated WSUS Maintenance
+# WSUS Maintenance Utility
 
-PowerShell script to run the maintenance routines for Windows Server Update Services
+Clean up your WSUS
 
-For full instructions and documentation, [visit my blog post](https://gal.vin/2017/08/28/automate-wsus-maintenance)
+``` txt
+o       o  o-o  o   o  o-o      o   o             o
+|       | |     |   | |         |\ /|     o       |
+o   o   o  o-o  |   |  o-o      | O |  oo   o-o  -o- o-o o-o   oo o-o   o-o o-o
+ \ / \ /      | |   |     |     |   | | | | |  |  |  |-' |  | | | |  | |    |-'
+  o   o   o--o   o-o  o--o      o   o o-o-| o  o  o  o-o o  o o-o-o  o  o-o o-o
 
-Please consider donating to support my work:
+o   o  o    o    o
+|   |  |  o | o  |
+|   | -o-   |   -o- o  o
+|   |  |  | | |  |  |  |                 Version 20.03.03 🍔
+ o-o   o  | o |  o  o--O
+                       |            Mike Galvin   https://gal.vin
+                    o--o
+```
 
-* You can support me on a monthly basis [using Patreon.](https://www.patreon.com/mikegalvin)
-* You can support me with a one-time payment [using PayPal](https://www.paypal.me/digressive) or by [using Kofi.](https://ko-fi.com/mikegalvin)
+For full instructions and documentation, [visit my site.](https://gal.vin/2017/08/28/automate-wsus-maintenance)
 
-Automated WSUS Maintenance can also be downloaded from:
+Please consider supporting my work:
 
-* [The Microsoft TechNet Gallery](https://gallery.technet.microsoft.com/WSUS-Maintenance-w-logging-d507a15a?redir=0)
-* [The PowerShell Gallery](https://www.powershellgallery.com/packages/Wsus-Maintenance)
+* Sign up [using Patreon.](https://www.patreon.com/mikegalvin)
+* Support with a one-time payment [using PayPal.](https://www.paypal.me/digressive)
+
+WSUS Maintenance Utility can also be downloaded from:
+
+* [The Microsoft PowerShell Gallery](https://www.powershellgallery.com/packages/Wsus-Maintenance)
 
 Tweet me if you have questions: [@mikegalvin_](https://twitter.com/mikegalvin_)
 
@@ -20,15 +35,15 @@ Tweet me if you have questions: [@mikegalvin_](https://twitter.com/mikegalvin_)
 
 ## Features and Requirements
 
-* The script will run the WSUS server cleanup process, which will delete obsolete updates, as well as declining expired and superseded updates.
-* The script can optionally create a log file and e-mail the log file to an address of your choice.
-* The script can be run locally on a WSUS server, or on a remote sever.
-* The script requires that the WSUS management tools be installed.
-* The script has been tested on Windows 10 and Windows Server 2016.
+* It's designed to run either on a WSUS server itself, or can be run from a remote machine.
+* The computer that is running the utility must have the WSUS management PowerShell modules installed.
+* The utility requires at least PowerShell 5.0
+
+This utility has been tested on Windows 10, Windows Server 2019 and Windows Server 2016.
 
 ### Generating A Password File
 
-The password used for SMTP server authentication must be in an encrypted text file. To generate the password file, run the following command in PowerShell, on the computer that is going to run the script and logged in with the user that will be running the script. When you run the command you will be prompted for a username and password. Enter the username and password you want to use to authenticate to your SMTP server.
+The password used for SMTP server authentication must be in an encrypted text file. To generate the password file, run the following command in PowerShell on the computer and logged in with the user that will be running the utility. When you run the command, you will be prompted for a username and password. Enter the username and password you want to use to authenticate to your SMTP server.
 
 Please note: This is only required if you need to authenticate to the SMTP server when send the log via e-mail.
 
@@ -43,70 +58,25 @@ After running the commands, you will have a text file containing the encrypted p
 
 Here’s a list of all the command line switches and example configurations.
 
-``` txt
--Server
-```
-
-The WSUS server to run the maintenance routine on.
-
-``` txt
--Port
-```
-
-The port WSUS is running on.
-
-``` txt
--L
-```
-
-The path to output the log file to. The file name will be Wsus-Maintenance.log
-
-``` txt
--Subject
-```
-
-The email subject that the email should have. Encapulate with single or double quotes.
-
-``` txt
--SendTo
-```
-
-The e-mail address the log should be sent to.
-
-``` txt
--From
-```
-
-The from address the log should be sent from.
-
-``` txt
--Smtp
-```
-
-The DNS name or IP address of the SMTP server.
-
-``` txt
--User
-```
-
-The user account to connect to the SMTP server.
-
-``` txt
--Pwd
-```
-
-The password for the user account.
-
-``` txt
--UseSsl
-```
-
-Connect to the SMTP server using SSL.
+| Command Line Switch | Description | Example |
+| ------------------- | ----------- | ------- |
+| -Server | The WSUS server to run the maintenance routine on. | wsus01 |
+| -Port | The port WSUS is running on the server. If you do not configure this, the default port of 8530 will be used. If the WsusSSL switch is used the default port will be 8531. | 6969 |
+| -WsusSsl | Use this option if your WSUS server uses SSL. | N/A |
+| -L | The path to output the log file to. The file name will be WSUS-Maint_YYYY-MM-dd_HH-mm-ss.log. Do not add a trailing \ backslash. | C:\scripts\logs |
+| -NoBanner | Use this option to hide the ASCII art title in the console. | N/A |
+| -Subject | The subject line for the e-mail log. Encapsulate with single or double quotes. If no subject is specified, the default of "WSUS Maintenance Utility Log" will be used. | 'Server: Notification' |
+| -SendTo | The e-mail address the log should be sent to. | me@contoso.com |
+| -From | The e-mail address the log should be sent from. | WsusMaint@contoso.com |
+| -Smtp | The DNS name or IP address of the SMTP server. | smtp.live.com OR smtp.office365.com |
+| -User | The user account to authenticate to the SMTP server. | example@contoso.com |
+| -Pwd | The txt file containing the encrypted password for SMTP authentication. | C:\scripts\ps-script-pwd.txt |
+| -UseSsl | Configures the utility to connect to the SMTP server using SSL. | N/A |
 
 ### Example
 
 ``` txt
-Wsus-Maintenance.ps1 -Server wsus01 -Port 8530 -L C:\scripts\logs -Subject 'Server: WSUS Cleanup' -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.contoso.com -User me@contoso.com -Pwd P@ssw0rd -UseSsl
+WSUS-Maintenance.ps1 -Server wsus01 -L C:\scripts\logs -Subject 'Server: WSUS Maintenance' -SendTo me@contoso.com -From WSUS-Maint@contoso.com -Smtp smtp.outlook.com -User me@contoso.com -Pwd C:\foo\pwd.txt -UseSsl
 ```
 
-This will run the maintenance on the WSUS server on wsus01 hosted on port 8530. A log will be output to C:\scripts\logs and e-mailed with a custom subject line, via an authenticated smtp server using ssl.
+The above command will run the maintenance on the server wsus01 using the default port. The log file will be output to C:\scripts\logs and sent via e-mail with a custom subject line.
