@@ -35,7 +35,7 @@ Tweet me if you have questions: [@mikegalvin_](https://twitter.com/mikegalvin_)
 
 ## Features and Requirements
 
-* It's designed to run either on a WSUS server itself, or can be run from a remote machine.
+* It's designed to run either on a WSUS server itself or can be run from a remote machine.
 * The computer that is running the utility must have the WSUS management PowerShell modules installed.
 * The utility requires at least PowerShell 5.0
 
