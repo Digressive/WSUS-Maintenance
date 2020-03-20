@@ -1,10 +1,10 @@
 ﻿<#PSScriptInfo
 
-.VERSION 20.03.03
+.VERSION 20.03.20
 
 .GUID 56dc6e4a-4f05-414c-9419-c575f17f581f
 
-.AUTHOR Mike Galvin Contact: mike@gal.vin / twitter.com/mikegalvin_
+.AUTHOR Mike Galvin Contact: mike@gal.vin / twitter.com/mikegalvin_ and also contribution from ideas@habs.homelinux.net
 
 .COMPANYNAME Mike Galvin
 
@@ -138,7 +138,7 @@ If ($NoBanner -eq $False)
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   |  |  | | |  |  |  |                 Version 20.03.03 =                      "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "   o-o   o  | o |  o  o--O                                                         "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                         |            Mike Galvin   https://gal.vin                "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                      o--o                                                         "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                      o--o              & ideas@habs.homelinux.net                 "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                                                                                   "
     Write-Host -Object ""
 }
@@ -316,13 +316,37 @@ If ($WsusSsl)
 {
     Write-Log -Type Info -Event "Connecting to WSUS server using SSL"
     Write-Log -Type Info -Event "WSUS maintenance routine starting..."
-    Get-WsusServer -Name $WsusServer -PortNumber $WsusPort -UseSSL | Invoke-WsusServerCleanup -CleanupObsoleteComputers -CleanupObsoleteUpdates -CleanupUnneededContentFiles -CompressUpdates -DeclineExpiredUpdates -DeclineSupersededUpdates | Out-File -Append $Log -Encoding ASCII
+
+    $CleanUpJobs = @("CleanupObsoleteComputers","DeclineExpiredUpdates","DeclineSupersededUpdates","CleanupObsoleteUpdates","CleanupUnneededContentFiles","CompressUpdates")
+
+    ForEach ($CleanUpJob in $CleanUpJobs)
+    {
+        Write-Log -Type Info -Event "$CleanUpJob..."
+        try {
+            Invoke-Expression "Get-WsusServer -Name $WsusServer -PortNumber $WsusPort -UseSSL | Invoke-WsusServerCleanup -$CleanUpJob | Out-File -Append $Log -Encoding ASCII"
+        }
+        catch {
+            Write-Log -Type Err -Event $_.Exception.Message
+        }
+    }
 }
 
 else {
     Write-Log -Type Info -Event "Connecting to WSUS server"
     Write-Log -Type Info -Event "WSUS maintenance routine starting..."
-    Get-WsusServer -Name $WsusServer -PortNumber $WsusPort | Invoke-WsusServerCleanup -CleanupObsoleteComputers -CleanupObsoleteUpdates -CleanupUnneededContentFiles -CompressUpdates -DeclineExpiredUpdates -DeclineSupersededUpdates | Out-File -Append $Log -Encoding ASCII
+
+    $CleanUpJobs = @("CleanupObsoleteComputers","DeclineExpiredUpdates","DeclineSupersededUpdates","CleanupObsoleteUpdates","CleanupUnneededContentFiles","CompressUpdates")
+
+    ForEach ($CleanUpJob in $CleanUpJobs)
+    {
+        Write-Log -Type Info -Event "$CleanUpJob..."
+        try {
+            Invoke-Expression "Get-WsusServer -Name $WsusServer -PortNumber $WsusPort | Invoke-WsusServerCleanup -$CleanUpJob | Out-File -Append $Log -Encoding ASCII"
+        }
+        catch {
+            Write-Log -Type Err -Event $_.Exception.Message
+        }
+    }
 }
 
 Write-Log -Type Info -Event "Process finished"

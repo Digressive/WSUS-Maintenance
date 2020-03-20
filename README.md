@@ -12,12 +12,13 @@ o   o   o  o-o  |   |  o-o      | O |  oo   o-o  -o- o-o o-o   oo o-o   o-o o-o
 o   o  o    o    o
 |   |  |  o | o  |
 |   | -o-   |   -o- o  o
-|   |  |  | | |  |  |  |                 Version 20.03.03 🍔
+|   |  |  | | |  |  |  |                 Version 20.03.20 🍔
  o-o   o  | o |  o  o--O
                        |            Mike Galvin   https://gal.vin
-                    o--o
+                    o--o              & ideas@habs.homelinux.net
 ```
 
+This version includes code contribution from ideas@habs.homelinux.net.
 For full instructions and documentation, [visit my site.](https://gal.vin/2017/08/28/automate-wsus-maintenance)
 
 Please consider supporting my work:
@@ -63,8 +64,8 @@ Here’s a list of all the command line switches and example configurations.
 | -Server | The WSUS server to run the maintenance routine on. | wsus01 |
 | -Port | The port WSUS is running on the server. If you do not configure this, the default port of 8530 will be used. If the WsusSSL switch is used the default port will be 8531. | 6969 |
 | -WsusSsl | Use this option if your WSUS server uses SSL. | N/A |
-| -L | The path to output the log file to. The file name will be WSUS-Maint_YYYY-MM-dd_HH-mm-ss.log. Do not add a trailing \ backslash. | C:\scripts\logs |
 | -NoBanner | Use this option to hide the ASCII art title in the console. | N/A |
+| -L | The path to output the log file to. The file name will be WSUS-Maint_YYYY-MM-dd_HH-mm-ss.log. Do not add a trailing \ backslash. | C:\scripts\logs |
 | -Subject | The subject line for the e-mail log. Encapsulate with single or double quotes. If no subject is specified, the default of "WSUS Maintenance Utility Log" will be used. | 'Server: Notification' |
 | -SendTo | The e-mail address the log should be sent to. | me@contoso.com |
 | -From | The e-mail address the log should be sent from. | WsusMaint@contoso.com |
