@@ -19,7 +19,7 @@ o   o  o    o    o
 ```
 
 This version includes code contribution from ideas@habs.homelinux.net.
-For full instructions and documentation, [visit my site.](https://gal.vin/2017/08/28/automate-wsus-maintenance)
+For full instructions and documentation, [visit my site.](https://gal.vin/automate-wsus-maintenance)
 
 Please consider supporting my work:
 
