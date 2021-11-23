@@ -14,7 +14,7 @@
 
 .LICENSEURI
 
-.PROJECTURI https://gal.vin/2017/08/28/automate-wsus-maintenance
+.PROJECTURI https://gal.vin/posts/automate-wsus-maintenance
 
 .ICONURI
 
