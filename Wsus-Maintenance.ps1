@@ -1,6 +1,6 @@
 ﻿<#PSScriptInfo
 
-.VERSION 21.12.08
+.VERSION 21.12.08a
 
 .GUID 56dc6e4a-4f05-414c-9419-c575f17f581f
 
@@ -139,7 +139,7 @@ If ($NoBanner -eq $False)
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  o   o  o    o    o                                                               "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   |  |  o | o  |                                                               "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   | -o-   |   -o- o  o                                                         "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   |  |  | | |  |  |  |                 Version 21.12.08                        "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   |  |  | | |  |  |  |                 Version 21.12.08a                       "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "   o-o   o  | o |  o  o--O                                                         "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                         |            Mike Galvin   https://gal.vin                "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                      o--o              & ideas@habs.homelinux.net                 "
@@ -233,7 +233,7 @@ $OSV = "$OSVMaj" + "." + "$OSVMin" + "." + "$OSVBui"
 ##
 
 Write-Log -Type Conf -Evt "************ Running with the following config *************."
-Write-Log -Type Conf -Evt "Utility Version:.......21.12.08"
+Write-Log -Type Conf -Evt "Utility Version:.......21.12.08a"
 Write-Log -Type Conf -Evt "Hostname:..............$Env:ComputerName."
 Write-Log -Type Conf -Evt "Windows Version:.......$OSV."
 

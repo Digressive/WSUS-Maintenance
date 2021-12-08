@@ -12,7 +12,7 @@ o   o   o  o-o  |   |  o-o      | O |  oo   o-o  -o- o-o o-o   oo o-o   o-o o-o
 o   o  o    o    o
 |   |  |  o | o  |
 |   | -o-   |   -o- o  o
-|   |  |  | | |  |  |  |                 Version 21.12.08
+|   |  |  | | |  |  |  |                 Version 21.12.08a
  o-o   o  | o |  o  o--O
                        |            Mike Galvin   https://gal.vin
                     o--o              & ideas@habs.homelinux.net
