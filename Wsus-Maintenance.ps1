@@ -1,6 +1,6 @@
 ﻿<#PSScriptInfo
 
-.VERSION 20.03.20
+.VERSION 21.12.08
 
 .GUID 56dc6e4a-4f05-414c-9419-c575f17f581f
 
@@ -77,6 +77,9 @@
     .PARAMETER Smtp
     The DNS name or IP address of the SMTP server.
 
+    .PARAMETER SmtpPort
+    The Port that should be used for the SMTP server.
+
     .PARAMETER User
     The user account to authenticate to the SMTP server.
 
@@ -103,7 +106,6 @@ Param(
     [alias("Port")]
     $WsusPort,
     [alias("L")]
-    [ValidateScript({Test-Path $_ -PathType 'Container'})]
     $LogPath,
     [alias("Subject")]
     $MailSubject,
@@ -113,6 +115,8 @@ Param(
     $MailFrom,
     [alias("Smtp")]
     $SmtpServer,
+    [alias("SmtpPort")]
+    $SmtpSvrPort,
     [alias("User")]
     $SmtpUser,
     [alias("Pwd")]
@@ -135,7 +139,7 @@ If ($NoBanner -eq $False)
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  o   o  o    o    o                                                               "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   |  |  o | o  |                                                               "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   | -o-   |   -o- o  o                                                         "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   |  |  | | |  |  |  |                 Version 20.03.03 =                      "
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   |  |  | | |  |  |  |                 Version 21.12.08                        "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "   o-o   o  | o |  o  o--O                                                         "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                         |            Mike Galvin   https://gal.vin                "
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                      o--o              & ideas@habs.homelinux.net                 "
@@ -147,6 +151,14 @@ If ($NoBanner -eq $False)
 ## If the log file already exists, clear it.
 If ($LogPath)
 {
+    ## Make sure the log directory exists.
+    $LogPathFolderT = Test-Path $LogPath
+
+    If ($LogPathFolderT -eq $False)
+    {
+        New-Item $LogPath -ItemType Directory -Force | Out-Null
+    }
+
     $LogFile = ("WSUS-Maint_{0:yyyy-MM-dd_HH-mm-ss}.log" -f (Get-Date))
     $Log = "$LogPath\$LogFile"
 
@@ -167,136 +179,156 @@ Function Get-DateFormat
 }
 
 ## Function for logging.
-Function Write-Log($Type, $Event)
+Function Write-Log($Type, $Evt)
 {
     If ($Type -eq "Info")
     {
         If ($Null -ne $LogPath)
         {
-            Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [INFO] $Event"
+            Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [INFO] $Evt"
         }
         
-        Write-Host -Object "$(Get-DateFormat) [INFO] $Event"
+        Write-Host -Object "$(Get-DateFormat) [INFO] $Evt"
     }
 
     If ($Type -eq "Succ")
     {
         If ($Null -ne $LogPath)
         {
-            Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [SUCCESS] $Event"
+            Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [SUCCESS] $Evt"
         }
 
-        Write-Host -ForegroundColor Green -Object "$(Get-DateFormat) [SUCCESS] $Event"
+        Write-Host -ForegroundColor Green -Object "$(Get-DateFormat) [SUCCESS] $Evt"
     }
 
     If ($Type -eq "Err")
     {
         If ($Null -ne $LogPath)
         {
-            Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [ERROR] $Event"
+            Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [ERROR] $Evt"
         }
 
-        Write-Host -ForegroundColor Red -BackgroundColor Black -Object "$(Get-DateFormat) [ERROR] $Event"
+        Write-Host -ForegroundColor Red -BackgroundColor Black -Object "$(Get-DateFormat) [ERROR] $Evt"
     }
 
     If ($Type -eq "Conf")
     {
         If ($Null -ne $LogPath)
         {
-            Add-Content -Path $Log -Encoding ASCII -Value "$Event"
+            Add-Content -Path $Log -Encoding ASCII -Value "$Evt"
         }
 
-        Write-Host -ForegroundColor Cyan -Object "$Event"
+        Write-Host -ForegroundColor Cyan -Object "$Evt"
     }
 }
+
+## getting Windows Version info
+$OSVMaj = [environment]::OSVersion.Version | Select-Object -expand major
+$OSVMin = [environment]::OSVersion.Version | Select-Object -expand minor
+$OSVBui = [environment]::OSVersion.Version | Select-Object -expand build
+$OSV = "$OSVMaj" + "." + "$OSVMin" + "." + "$OSVBui"
 
 ##
 ## Display the current config and log if configured.
 ##
-Write-Log -Type Conf -Event "************ Running with the following config *************."
-Write-Log -Type Conf -Event "WSUS Server name:......$WsusServer."
+
+Write-Log -Type Conf -Evt "************ Running with the following config *************."
+Write-Log -Type Conf -Evt "Utility Version:.......21.12.08"
+Write-Log -Type Conf -Evt "Hostname:..............$Env:ComputerName."
+Write-Log -Type Conf -Evt "Windows Version:.......$OSV."
+
+Write-Log -Type Conf -Evt "WSUS Server name:......$WsusServer."
 If ($WsusPort)
 {
-    Write-Log -Type Conf -Event "WSUS Server port:......$WsusPort."
+    Write-Log -Type Conf -Evt "WSUS Server port:......$WsusPort."
 }
 
 If ($Null -eq $WsusPort -And $WsusSsl -eq $False)
 {
-    Write-Log -Type Conf -Event "WSUS Server port:......Default (8530)"
+    Write-Log -Type Conf -Evt "WSUS Server port:......Default (8530)"
 }
 
 else {
-    Write-Log -Type Conf -Event "WSUS Server port:......Default (8531)"
+    Write-Log -Type Conf -Evt "WSUS Server port:......Default (8531)"
 }
 
-Write-Log -Type Conf -Event "-WsusSSL switch is:....$WsusSsl."
+Write-Log -Type Conf -Evt "-WsusSSL switch is:....$WsusSsl."
 
 If ($Null -ne $LogPath)
 {
-    Write-Log -Type Conf -Event "Logs directory:........$LogPath."
+    Write-Log -Type Conf -Evt "Logs directory:........$LogPath."
 }
 
 else {
-    Write-Log -Type Conf -Event "Logs directory:........No Config"
+    Write-Log -Type Conf -Evt "Logs directory:........No Config"
 }
 
 If ($MailTo)
 {
-    Write-Log -Type Conf -Event "E-mail log to:.........$MailTo."
+    Write-Log -Type Conf -Evt "E-mail log to:.........$MailTo."
 }
 
 else {
-    Write-Log -Type Conf -Event "E-mail log to:.........No Config"
+    Write-Log -Type Conf -Evt "E-mail log to:.........No Config"
 }
 
 If ($MailFrom)
 {
-    Write-Log -Type Conf -Event "E-mail log from:.......$MailFrom."
+    Write-Log -Type Conf -Evt "E-mail log from:.......$MailFrom."
 }
 
 else {
-    Write-Log -Type Conf -Event "E-mail log from:.......No Config"
+    Write-Log -Type Conf -Evt "E-mail log from:.......No Config"
 }
 
 If ($MailSubject)
 {
-    Write-Log -Type Conf -Event "E-mail subject:........$MailSubject."
+    Write-Log -Type Conf -Evt "E-mail subject:........$MailSubject."
 }
 
 else {
-    Write-Log -Type Conf -Event "E-mail subject:........Default"
+    Write-Log -Type Conf -Evt "E-mail subject:........Default"
 }
 
 If ($SmtpServer)
 {
-    Write-Log -Type Conf -Event "SMTP server is:........$SmtpServer."
+    Write-Log -Type Conf -Evt "SMTP server is:........$SmtpServer."
 }
 
 else {
-    Write-Log -Type Conf -Event "SMTP server is:........No Config"
+    Write-Log -Type Conf -Evt "SMTP server is:........No Config"
+}
+
+If ($SmtpSvrPort)
+{
+    Write-Log -Type Conf -Evt "SMTP Port:...............$SmtpSvrPort."
+}
+
+else {
+    Write-Log -Type Conf -Evt "SMTP Port:...............Default"
 }
 
 If ($SmtpUser)
 {
-    Write-Log -Type Conf -Event "SMTP user is:..........$SmtpUser."
+    Write-Log -Type Conf -Evt "SMTP user is:..........$SmtpUser."
 }
 
 else {
-    Write-Log -Type Conf -Event "SMTP user is:..........No Config"
+    Write-Log -Type Conf -Evt "SMTP user is:..........No Config"
 }
 
 If ($SmtpPwd)
 {
-    Write-Log -Type Conf -Event "SMTP pwd file:.........$SmtpPwd."
+    Write-Log -Type Conf -Evt "SMTP pwd file:.........$SmtpPwd."
 }
 
 else {
-    Write-Log -Type Conf -Event "SMTP pwd file:.........No Config"
+    Write-Log -Type Conf -Evt "SMTP pwd file:.........No Config"
 }
 
-Write-Log -Type Conf -Event "-UseSSL switch is:.....$UseSsl."
-Write-Log -Type Conf -Event "************************************************************"
-Write-Log -Type Info -Event "Process started"
+Write-Log -Type Conf -Evt "-UseSSL switch is:.....$UseSsl."
+Write-Log -Type Conf -Evt "************************************************************"
+Write-Log -Type Info -Evt "Process started"
 ##
 ## Display current config ends here.
 ##
@@ -314,42 +346,42 @@ else {
 ## If the WsusSsl switch is configured then connect to the WSUS server using SSL.
 If ($WsusSsl)
 {
-    Write-Log -Type Info -Event "Connecting to WSUS server using SSL"
-    Write-Log -Type Info -Event "WSUS maintenance routine starting..."
+    Write-Log -Type Info -Evt "Connecting to WSUS server using SSL"
+    Write-Log -Type Info -Evt "WSUS maintenance routine starting..."
 
     $CleanUpJobs = @("CleanupObsoleteComputers","DeclineExpiredUpdates","DeclineSupersededUpdates","CleanupObsoleteUpdates","CleanupUnneededContentFiles","CompressUpdates")
 
     ForEach ($CleanUpJob in $CleanUpJobs)
     {
-        Write-Log -Type Info -Event "$CleanUpJob..."
+        Write-Log -Type Info -Evt "$CleanUpJob..."
         try {
             Invoke-Expression "Get-WsusServer -Name $WsusServer -PortNumber $WsusPort -UseSSL | Invoke-WsusServerCleanup -$CleanUpJob | Out-File -Append $Log -Encoding ASCII"
         }
         catch {
-            Write-Log -Type Err -Event $_.Exception.Message
+            Write-Log -Type Err -Evt $_.Exception.Message
         }
     }
 }
 
 else {
-    Write-Log -Type Info -Event "Connecting to WSUS server"
-    Write-Log -Type Info -Event "WSUS maintenance routine starting..."
+    Write-Log -Type Info -Evt "Connecting to WSUS server"
+    Write-Log -Type Info -Evt "WSUS maintenance routine starting..."
 
     $CleanUpJobs = @("CleanupObsoleteComputers","DeclineExpiredUpdates","DeclineSupersededUpdates","CleanupObsoleteUpdates","CleanupUnneededContentFiles","CompressUpdates")
 
     ForEach ($CleanUpJob in $CleanUpJobs)
     {
-        Write-Log -Type Info -Event "$CleanUpJob..."
+        Write-Log -Type Info -Evt "$CleanUpJob..."
         try {
             Invoke-Expression "Get-WsusServer -Name $WsusServer -PortNumber $WsusPort | Invoke-WsusServerCleanup -$CleanUpJob | Out-File -Append $Log -Encoding ASCII"
         }
         catch {
-            Write-Log -Type Err -Event $_.Exception.Message
+            Write-Log -Type Err -Evt $_.Exception.Message
         }
     }
 }
 
-Write-Log -Type Info -Event "Process finished"
+Write-Log -Type Info -Evt "Process finished"
 
 ## If logging is configured then finish the log file.
 If ($LogPath)
@@ -363,6 +395,12 @@ If ($LogPath)
         If ($Null -eq $MailSubject)
         {
             $MailSubject = "WSUS Maintenance Utility Log"
+        }
+
+        ## Default Smtp Port if none is configured.
+        If ($Null -eq $SmtpSvrPort)
+        {
+            $SmtpSvrPort = "25"
         }
 
         ## Setting the contents of the log to be the e-mail body. 
