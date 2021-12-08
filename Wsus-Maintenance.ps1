@@ -42,7 +42,7 @@
     To create the password file run this command as the user and on the machine that will use the file:
 
     $creds = Get-Credential
-    $creds.Password | ConvertFrom-SecureString | Set-Content c:\foo\ps-script-pwd.txt
+    $creds.Password | ConvertFrom-SecureString | Set-Content C:\scripts\ps-script-pwd.txt
 
     .PARAMETER Server
     The WSUS server to run the maintenance routine on.
@@ -88,7 +88,7 @@
 
     .EXAMPLE
     WSUS-Maintenance.ps1 -Server wsus01 -Port 8530 -L C:\scripts\logs -Subject 'Server: WSUS Cleanup'
-    -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.outlook.com -User me@contoso.com -Pwd C:\foo\pwd.txt -UseSsl
+    -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.outlook.com -User me@contoso.com -Pwd c:\scripts\ps-script-pwd.txt -UseSsl
 
     The above command will run the built-in maintenance on the WSUS server wsus01 hosted on port 8530.
     The log file will be output to C:\scripts\logs and sent via e-mail with a custom subject line.

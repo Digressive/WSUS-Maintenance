@@ -39,8 +39,7 @@ Join the [Discord](http://discord.gg/5ZsnJ5k) or Tweet me if you have questions:
 * It's designed to run either on a WSUS server itself or can be run from a remote machine.
 * The computer that is running the utility must have the WSUS management PowerShell modules installed.
 * The utility requires at least PowerShell 5.0
-
-This utility has been tested on Windows 10, Windows Server 2019 and Windows Server 2016.
+* This utility has been tested on Windows 10, Windows Server 2019 and Windows Server 2016.
 
 ### Generating A Password File
 
@@ -77,7 +76,7 @@ Here’s a list of all the command line switches and example configurations.
 ### Example
 
 ``` txt
-WSUS-Maintenance.ps1 -Server wsus01 -L C:\scripts\logs -Subject 'Server: WSUS Maintenance' -SendTo me@contoso.com -From WSUS-Maint@contoso.com -Smtp smtp.outlook.com -User me@contoso.com -Pwd C:\foo\pwd.txt -UseSsl
+WSUS-Maintenance.ps1 -Server wsus01 -L C:\scripts\logs -Subject 'Server: WSUS Maintenance' -SendTo me@contoso.com -From WSUS-Maint@contoso.com -Smtp smtp.outlook.com -User me@contoso.com -Pwd c:\scripts\ps-script-pwd.txt -UseSsl
 ```
 
 The above command will run the maintenance on the server wsus01 using the default port. The log file will be output to C:\scripts\logs and sent via e-mail with a custom subject line.
