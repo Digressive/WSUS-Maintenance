@@ -301,11 +301,11 @@ else {
 
 If ($SmtpSvrPort)
 {
-    Write-Log -Type Conf -Evt "SMTP Port:...............$SmtpSvrPort."
+    Write-Log -Type Conf -Evt "SMTP Port:.............$SmtpSvrPort."
 }
 
 else {
-    Write-Log -Type Conf -Evt "SMTP Port:...............Default"
+    Write-Log -Type Conf -Evt "SMTP Port:.............Default"
 }
 
 If ($SmtpUser)
