@@ -2,22 +2,6 @@
 
 Clean up your WSUS
 
-``` txt
-o       o  o-o  o   o  o-o      o   o             o
-|       | |     |   | |         |\ /|     o       |
-o   o   o  o-o  |   |  o-o      | O |  oo   o-o  -o- o-o o-o   oo o-o   o-o o-o
- \ / \ /      | |   |     |     |   | | | | |  |  |  |-' |  | | | |  | |    |-'
-  o   o   o--o   o-o  o--o      o   o o-o-| o  o  o  o-o o  o o-o-o  o  o-o o-o
-
-o   o  o    o    o
-|   |  |  o | o  |
-|   | -o-   |   -o- o  o
-|   |  |  | | |  |  |  |                 Version 21.12.08.01
- o-o   o  | o |  o  o--O
-                       |            Mike Galvin   https://gal.vin
-                    o--o              & ideas@habs.homelinux.net
-```
-
 This version includes code contribution from ideas@habs.homelinux.net.
 For full instructions and documentation, [visit my site.](https://gal.vin/posts/automate-wsus-maintenance)
 
