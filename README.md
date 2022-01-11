@@ -3,7 +3,7 @@
 Clean up your WSUS
 
 This version includes code contribution from ideas@habs.homelinux.net.
-For full instructions and documentation, [visit my site.](https://gal.vin/posts/automate-wsus-maintenance)
+For full instructions and documentation, [visit my site.](https://gal.vin/utils/wsus-maint-utility/)
 
 Please consider supporting my work:
 
@@ -45,7 +45,7 @@ Here’s a list of all the command line switches and example configurations.
 | Command Line Switch | Description | Example |
 | ------------------- | ----------- | ------- |
 | -Server | The WSUS server to run the maintenance routine on. | wsus01 |
-| -Port | The port WSUS is running on the server. If you do not configure this, the default port of 8530 will be used. If the WsusSSL switch is used the default port will be 8531. | 6969 |
+| -Port | The port WSUS is running on the server. If you do not configure this, the default port of 8530 will be used. If the -WsusSSL switch is used the default port will be 8531. | 6969 |
 | -WsusSsl | Use this option if your WSUS server uses SSL. | N/A |
 | -NoBanner | Use this option to hide the ASCII art title in the console. | N/A |
 | -L | The path to output the log file to. The file name will be WSUS-Maint_YYYY-MM-dd_HH-mm-ss.log. Do not add a trailing \ backslash. | ```C:\scripts\logs``` |
