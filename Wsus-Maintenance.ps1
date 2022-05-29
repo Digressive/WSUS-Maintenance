@@ -156,17 +156,19 @@ If ($NoBanner -eq $False)
 If ($PSBoundParameters.Values.Count -eq 0 -or $Help)
 {
     Write-Host "Usage:"
-    Write-Host "From a terminal run: [path\]Office-Update.ps1 -Office [path\]Office365 -Config config-365-x64.xml -Days 30"
-    Write-Host "This will update the office installation files in the specified directory, and delete update files older than 30 days"
+    Write-Host "From a terminal run: [path\]Wsus-Maintenance.ps1 -Server [WSUS Servername Name]"
+    Write-Host "This will run the maintenance jobs on the specified WSUS server"
+    Write-Host "Enable an SSL connection to the WSUS server with -WsusSsl"
+    Write-Host "mnore goes here"
     Write-Host ""
     Write-Host "To output a log: -L [path]. To remove logs produced by the utility older than X days: -LogRotate [number]."
     Write-Host "Run with no ASCII banner: -NoBanner"
     Write-Host ""
     Write-Host "To use the email function:"
-    Write-Host "Specify the subject line with -Subject ""'Office Updated'"" If you leave this blank a default subject will be used"
+    Write-Host "Specify the subject line with -Subject ""'WSUS Cleanup'"" If you leave this blank a default subject will be used"
     Write-Host "Make sure to encapsulate it with double & single quotes as per the example for Powershell to read it correctly."
     Write-Host "Specify the 'to' address with -SendTo me@contoso.com"
-    Write-Host "Specify the 'from' address with -From Office-Update@contoso.com"
+    Write-Host "Specify the 'from' address with -From WSUS-Cleanup@contoso.com"
     Write-Host "Specify the SMTP server with -Smtp smtp-mail.outlook.com"
     Write-Host "Specify the port to use with the SMTP server with -Port 587. If none is specified then the default of 25 will be used."
     Write-Host "Specify the user to access SMTP with -User example@contoso.com"
@@ -187,9 +189,7 @@ else {
     If ($LogPath)
     {
         ## Make sure the log directory exists.
-        $LogPathFolderT = Test-Path $LogPath
-
-        If ($LogPathFolderT -eq $False)
+        If ((Test-Path -Path $LogPath) -eq $False)
         {
             New-Item $LogPath -ItemType Directory -Force | Out-Null
         }
@@ -197,14 +197,10 @@ else {
         $LogFile = ("WSUS-Maint_{0:yyyy-MM-dd_HH-mm-ss}.log" -f (Get-Date))
         $Log = "$LogPath\$LogFile"
 
-        $LogT = Test-Path -Path $Log
-
-        If ($LogT)
+        If (Test-Path -Path $Log)
         {
             Clear-Content -Path $Log
         }
-
-        Add-Content -Path $Log -Encoding ASCII -Value "$(Get-Date -Format "yyyy-MM-dd HH:mm:ss") [INFO] Log started"
     }
 
     ## Function to get date in specific format.
@@ -281,11 +277,19 @@ else {
         Write-Log -Type Conf -Evt "WSUS Server port:......$WsusPort."
     }
 
-    Write-Log -Type Conf -Evt "-WsusSSL switch is:....$WsusSsl."
+    If ($WsusSsl)
+    {
+        Write-Log -Type Conf -Evt "-WsusSSL switch is:....$WsusSsl."
+    }
 
     If ($LogPath)
     {
         Write-Log -Type Conf -Evt "Logs directory:........$LogPath."
+    }
+
+    If ($Null -ne $LogHistory)
+    {
+        Write-Log -Type Conf -Evt "Logs to keep:..........$LogHistory days"
     }
 
     If ($MailTo)
@@ -343,27 +347,38 @@ else {
         $WsusPort = "8531"
     }
 
-    ## If the WsusSsl switch is configured then connect to the WSUS server using SSL and if not then don't.
-    If ($WsusSsl)
-    {
-        $WsusCmd = Invoke-Expression "Get-WsusServer -Name $WsusServer -PortNumber $WsusPort -UseSSL | Invoke-WsusServerCleanup -$CleanUpJob | Out-File -Append $Log -Encoding ASCII"
-    }
-
-    else {
-        $WsusCmd = Invoke-Expression "Get-WsusServer -Name $WsusServer -PortNumber $WsusPort | Invoke-WsusServerCleanup -$CleanUpJob | Out-File -Append $Log -Encoding ASCII"
-    }
-
     ## Run the Clean up process.
     Write-Log -Type Info -Evt "Connecting to WSUS server"
     Write-Log -Type Info -Evt "WSUS maintenance routine starting..."
 
-    $CleanUpJobs = @("CleanupObsoleteComputers","DeclineExpiredUpdates","DeclineSupersededUpdates","CleanupObsoleteUpdates","CleanupUnneededContentFiles","CompressUpdates")
+    ## WSUS Clean up jobs
+    $CleanUpJobs = "CleanupObsoleteComputers","DeclineExpiredUpdates","DeclineSupersededUpdates","CleanupObsoleteUpdates","CleanupUnneededContentFiles","CompressUpdates"
 
     ForEach ($CleanUpJob in $CleanUpJobs)
     {
         Write-Log -Type Info -Evt "$CleanUpJob..."
         try {
-            $WsusCmd
+            ## If the WsusSsl switch is configured then connect to the WSUS server using SSL and if not then don't.
+            If ($WsusSsl)
+            {
+                If ($LogPath)
+                {
+                    Invoke-Expression "Get-WsusServer -Name $WsusServer -PortNumber $WsusPort -UseSSL | Invoke-WsusServerCleanup -$CleanUpJob | Out-File -Append $Log -Encoding ASCII"
+                }
+                else {
+                    Invoke-Expression "Get-WsusServer -Name $WsusServer -PortNumber $WsusPort -UseSSL | Invoke-WsusServerCleanup -$CleanUpJob"
+                }
+            }
+
+            else {
+                If ($LogPath)
+                {
+                    Invoke-Expression "Get-WsusServer -Name $WsusServer -PortNumber $WsusPort | Invoke-WsusServerCleanup -$CleanUpJob | Out-File -Append $Log -Encoding ASCII"
+                }
+                else {
+                    Invoke-Expression "Get-WsusServer -Name $WsusServer -PortNumber $WsusPort | Invoke-WsusServerCleanup -$CleanUpJob"
+                }
+            }
         }
         catch {
             Write-Log -Type Err -Evt $_.Exception.Message
@@ -372,18 +387,16 @@ else {
 
     Write-Log -Type Info -Evt "Process finished"
 
-    If ($LogHistory)
+    If ($Null -ne $LogHistory)
     {
         ## Cleanup logs.
         Write-Log -Type Info -Evt "Deleting logs older than: $LogHistory days"
-        Get-ChildItem -Path "$LogPath\Office-Update_*" -File | Where-Object CreationTime -lt (Get-Date).AddDays(-$LogHistory) | Remove-Item -Recurse
+        Get-ChildItem -Path "$LogPath\WSUS-Maint_*" -File | Where-Object CreationTime -lt (Get-Date).AddDays(-$LogHistory) | Remove-Item -Recurse
     }
 
     ## If logging is configured then finish the log file.
     If ($LogPath)
     {
-        Add-Content -Path $Log -Encoding ASCII -Value "$(Get-Date -Format "yyyy-MM-dd HH:mm:ss") [INFO] Log finished"
-
         ## This whole block is for e-mail, if it is configured.
         If ($SmtpServer)
         {
