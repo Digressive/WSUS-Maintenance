@@ -48,6 +48,8 @@ Here’s a list of all the command line switches and example configurations.
 | -WsusSsl | Use this option if your WSUS server uses SSL. | N/A |
 | -NoBanner | Use this option to hide the ASCII art title in the console. | N/A |
 | -L | The path to output the log file to. The file name will be WSUS-Maint_YYYY-MM-dd_HH-mm-ss.log. Do not add a trailing \ backslash. | ```C:\scripts\logs``` |
+| -LogRotate | Instructs the utility to remove logs older than a specified number of days. | 30 |
+| -Help | Show usage instructions. | N/A |
 | -Subject | The subject line for the e-mail log. Encapsulate with single or double quotes. If no subject is specified, the default of "WSUS Maintenance Utility Log" will be used. | 'Server: Notification' |
 | -SendTo | The e-mail address the log should be sent to. | me@contoso.com |
 | -From | The e-mail address the log should be sent from. | WsusMaint@contoso.com |
@@ -60,7 +62,7 @@ Here’s a list of all the command line switches and example configurations.
 ## Example
 
 ``` txt
-WSUS-Maintenance.ps1 -Server wsus01 -L C:\scripts\logs -Subject 'Server: WSUS Maintenance' -SendTo me@contoso.com -From WSUS-Maint@contoso.com -Smtp smtp.outlook.com -User me@contoso.com -Pwd c:\scripts\ps-script-pwd.txt -UseSsl
+WSUS-Maintenance.ps1 -Server wsus01 -L C:\scripts\logs -SendTo me@contoso.com -From WSUS-Maint@contoso.com -Smtp smtp.outlook.com -User me@contoso.com -Pwd c:\scripts\ps-script-pwd.txt -UseSsl
 ```
 
-The above command will run the maintenance on the server wsus01 using the default port. The log file will be output to ```C:\scripts\logs``` and sent via e-mail with a custom subject line.
+The above command will run the maintenance on the server wsus01 using the default port, will generate a log file and send it via e-mail.
