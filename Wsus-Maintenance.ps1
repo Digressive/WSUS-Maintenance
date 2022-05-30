@@ -290,7 +290,7 @@ else {
 
     If ($Null -ne $LogHistory)
     {
-        Write-Log -Type Conf -Evt "Logs to keep:..........$LogHistory days"
+        Write-Log -Type Conf -Evt "Logs to keep:..........$LogHistory days."
     }
 
     If ($MailTo)
