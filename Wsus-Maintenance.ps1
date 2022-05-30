@@ -136,51 +136,52 @@ Param(
 
 If ($NoBanner -eq $False)
 {
-    Write-Host -Object ""
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  o       o  o-o  o   o  o-o      o   o             o                              "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |       | |     |   | |         |\ /|     o       |                              "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  o   o   o  o-o  |   |  o-o      | O |  oo   o-o  -o- o-o o-o   oo o-o   o-o o-o  "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "   \ / \ /      | |   |     |     |   | | | | |  |  |  |-' |  | | | |  | |    |-'  "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "    o   o   o--o   o-o  o--o      o   o o-o-| o  o  o  o-o o  o o-o-o  o  o-o o-o  "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                                                                                   "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  o   o  o    o    o                           Mike Galvin                         "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   |  |  o | o  |                         https://gal.vin                       "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   | -o-   |   -o- o  o                                                         "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "  |   |  |  | | |  |  |  |                  Version 22.05.28                       "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "   o-o   o  | o |  o  o--O                 See -help for usage                     "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                         |                                                         "
-    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "                      o--o        Donate: https://www.paypal.me/digressive         "
-    Write-Host -Object ""
+    Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "
+    o       o  o-o  o   o  o-o      o   o             o                              
+    |       | |     |   | |         |\ /|     o       |                              
+    o   o   o  o-o  |   |  o-o      | O |  oo   o-o  -o- o-o o-o   oo o-o   o-o o-o  
+     \ / \ /      | |   |     |     |   | | | | |  |  |  |-' |  | | | |  | |    |-'  
+      o   o   o--o   o-o  o--o      o   o o-o-| o  o  o  o-o o  o o-o-o  o  o-o o-o  
+                                                                                     
+    o   o  o    o    o                           Mike Galvin                         
+    |   |  |  o | o  |                         https://gal.vin                       
+    |   | -o-   |   -o- o  o                                                         
+    |   |  |  | | |  |  |  |                  Version 22.05.28                       
+     o-o   o  | o |  o  o--O                 See -help for usage                     
+                           |                                                         
+                        o--o      Donate: https://www.paypal.me/digressive           
+"
 }
 
 If ($PSBoundParameters.Values.Count -eq 0 -or $Help)
 {
-    Write-Host "Usage:"
-    Write-Host "From a terminal run: [path\]Wsus-Maintenance.ps1 -Server [WSUS Servername Name]"
-    Write-Host "This will run the maintenance jobs on the specified WSUS server"
-    Write-Host "Enable an SSL connection to the WSUS server with -WsusSsl"
-    Write-Host "mnore goes here"
-    Write-Host ""
-    Write-Host "To output a log: -L [path]. To remove logs produced by the utility older than X days: -LogRotate [number]."
-    Write-Host "Run with no ASCII banner: -NoBanner"
-    Write-Host ""
-    Write-Host "To use the email function:"
-    Write-Host "Specify the subject line with -Subject ""'WSUS Cleanup'"" If you leave this blank a default subject will be used"
-    Write-Host "Make sure to encapsulate it with double & single quotes as per the example for Powershell to read it correctly."
-    Write-Host "Specify the 'to' address with -SendTo me@contoso.com"
-    Write-Host "Specify the 'from' address with -From WSUS-Cleanup@contoso.com"
-    Write-Host "Specify the SMTP server with -Smtp smtp-mail.outlook.com"
-    Write-Host "Specify the port to use with the SMTP server with -Port 587. If none is specified then the default of 25 will be used."
-    Write-Host "Specify the user to access SMTP with -User example@contoso.com"
-    Write-Host "Specify the password file to use with -Pwd [path\]ps-script-pwd.txt."
-    Write-Host ""
-    Write-Host "To generate an encrypted password file run the following commands on the computer and the user that will run the script:"
-    Write-Host ""
-    Write-Host '$creds = Get-Credential'
-    Write-Host '$creds.Password | ConvertFrom-SecureString | Set-Content [path\]ps-script-pwd.txt'
-    Write-Host ""
-    Write-Host "Enable SSL connections with -UseSsl"
-    Write-Host ""
+    Write-Host -Object "Usage:
+    From a terminal run: [path\]Wsus-Maintenance.ps1 -Server [WSUS Servername Name]
+    This will run the maintenance jobs on the specified WSUS server
+    Enable an SSL connection to the WSUS server with -WsusSsl
+    Specify the port to use with -Port [port number]
+    If none is specified then the default of 8530 will be used, or 8531 if SSL is used.
+
+    To output a log: -L [path]. To remove logs produced by the utility older than X days: -LogRotate [number].
+    Run with no ASCII banner: -NoBanner
+
+    To use the 'email log' function:
+    Specify the subject line with -Subject ""'[subject line]'"" If you leave this blank a default subject will be used
+    Make sure to encapsulate it with double & single quotes as per the example for Powershell to read it correctly.
+    Specify the 'to' address with -SendTo [example@contoso.com]
+    Specify the 'from' address with -From [example@contoso.com]
+    Specify the SMTP server with -Smtp [smtp server name]
+    Specify the port to use with the SMTP server with -Port [port number].
+    If none is specified then the default of 25 will be used.
+    Specify the user to access SMTP with -User [example@contoso.com]
+    Specify the password file to use with -Pwd [path\]ps-script-pwd.txt.
+    Use SSL for SMTP server connection with -UseSsl.
+
+    To generate an encrypted password file run the following commands
+    on the computer and the user that will run the script:
+"
+    Write-Host -Object '    $creds = Get-Credential
+    $creds.Password | ConvertFrom-SecureString | Set-Content [path\]ps-script-pwd.txt'
 }
 
 else {
@@ -397,46 +398,53 @@ else {
     ## If logging is configured then finish the log file.
     If ($LogPath)
     {
-        ## This whole block is for e-mail, if it is configured.
-        If ($SmtpServer)
+        If (Test-Path -Path $Log)
         {
-            ## Default e-mail subject if none is configured.
-            If ($Null -eq $MailSubject)
+            ## This whole block is for e-mail, if it is configured.
+            If ($SmtpServer)
             {
-                $MailSubject = "WSUS Maintenance Utility Log"
-            }
-
-            ## Default Smtp Port if none is configured.
-            If ($Null -eq $SmtpSvrPort)
-            {
-                $SmtpSvrPort = "25"
-            }
-
-            ## Setting the contents of the log to be the e-mail body.
-            $MailBody = Get-Content -Path $Log | Out-String
-
-            ## If an smtp password is configured, get the username and password together for authentication.
-            ## If an smtp password is not provided then send the e-mail without authentication and obviously no SSL.
-            If ($SmtpPwd)
-            {
-                $SmtpPwdEncrypt = Get-Content $SmtpPwd | ConvertTo-SecureString
-                $SmtpCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ($SmtpUser, $SmtpPwdEncrypt)
-
-                ## If -ssl switch is used, send the email with SSL.
-                ## If it isn't then don't use SSL, but still authenticate with the credentials.
-                If ($UseSsl)
+                ## Default e-mail subject if none is configured.
+                If ($Null -eq $MailSubject)
                 {
-                    Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort -UseSsl -Credential $SmtpCreds
+                    $MailSubject = "WSUS Maintenance Utility Log"
+                }
+
+                ## Default Smtp Port if none is configured.
+                If ($Null -eq $SmtpSvrPort)
+                {
+                    $SmtpSvrPort = "25"
+                }
+
+                ## Setting the contents of the log to be the e-mail body.
+                $MailBody = Get-Content -Path $Log | Out-String
+
+                ## If an smtp password is configured, get the username and password together for authentication.
+                ## If an smtp password is not provided then send the e-mail without authentication and obviously no SSL.
+                If ($SmtpPwd)
+                {
+                    $SmtpPwdEncrypt = Get-Content $SmtpPwd | ConvertTo-SecureString
+                    $SmtpCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ($SmtpUser, $SmtpPwdEncrypt)
+
+                    ## If -ssl switch is used, send the email with SSL.
+                    ## If it isn't then don't use SSL, but still authenticate with the credentials.
+                    If ($UseSsl)
+                    {
+                        Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort -UseSsl -Credential $SmtpCreds
+                    }
+
+                    else {
+                        Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort -Credential $SmtpCreds
+                    }
                 }
 
                 else {
-                    Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort -Credential $SmtpCreds
+                    Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort
                 }
             }
+        }
 
-            else {
-                Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort
-            }
+        else {
+            Write-Host -ForegroundColor Red -BackgroundColor Black -Object "There's no log file to email."
         }
     }
 }
