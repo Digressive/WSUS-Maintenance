@@ -1,8 +1,7 @@
 # WSUS Maintenance Utility
 
-Clean up your WSUS
+Clean up WSUS
 
-This version includes code contribution from ideas@habs.homelinux.net.
 For full instructions and documentation, [visit my site.](https://gal.vin/utils/wsus-maint-utility/)
 
 Please consider supporting my work:
@@ -23,9 +22,9 @@ Join the [Discord](http://discord.gg/5ZsnJ5k) or Tweet me if you have questions:
 * It's designed to run either on a WSUS server itself or can be run from a remote machine.
 * The computer that is running the utility must have the WSUS management PowerShell modules installed.
 * The utility requires at least PowerShell 5.0
-* This utility has been tested on Windows 10, Windows Server 2019 and Windows Server 2016.
+* This utility has been tested on Windows 11, Windows 10, Windows Server 2022, Windows Server 2019 and Windows Server 2016.
 
-### Generating A Password File
+## Generating A Password File
 
 The password used for SMTP server authentication must be in an encrypted text file. To generate the password file, run the following command in PowerShell on the computer and logged in with the user that will be running the utility. When you run the command, you will be prompted for a username and password. Enter the username and password you want to use to authenticate to your SMTP server.
 
@@ -38,7 +37,7 @@ $creds.Password | ConvertFrom-SecureString | Set-Content c:\scripts\ps-script-pw
 
 After running the commands, you will have a text file containing the encrypted password. When configuring the -Pwd switch enter the path and file name of this file.
 
-### Configuration
+## Configuration
 
 Here’s a list of all the command line switches and example configurations.
 
@@ -58,7 +57,7 @@ Here’s a list of all the command line switches and example configurations.
 | -Pwd | The txt file containing the encrypted password for SMTP authentication. | ```C:\scripts\ps-script-pwd.txt``` |
 | -UseSsl | Configures the utility to connect to the SMTP server using SSL. | N/A |
 
-### Example
+## Example
 
 ``` txt
 WSUS-Maintenance.ps1 -Server wsus01 -L C:\scripts\logs -Subject 'Server: WSUS Maintenance' -SendTo me@contoso.com -From WSUS-Maint@contoso.com -Smtp smtp.outlook.com -User me@contoso.com -Pwd c:\scripts\ps-script-pwd.txt -UseSsl
