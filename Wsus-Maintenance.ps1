@@ -137,19 +137,19 @@ Param(
 If ($NoBanner -eq $False)
 {
     Write-Host -ForegroundColor Yellow -BackgroundColor Black -Object "
-    o       o  o-o  o   o  o-o      o   o             o                              
-    |       | |     |   | |         |\ /|     o       |                              
-    o   o   o  o-o  |   |  o-o      | O |  oo   o-o  -o- o-o o-o   oo o-o   o-o o-o  
-     \ / \ /      | |   |     |     |   | | | | |  |  |  |-' |  | | | |  | |    |-'  
-      o   o   o--o   o-o  o--o      o   o o-o-| o  o  o  o-o o  o o-o-o  o  o-o o-o  
-                                                                                     
-    o   o  o    o    o                           Mike Galvin                         
-    |   |  |  o | o  |                         https://gal.vin                       
-    |   | -o-   |   -o- o  o                                                         
-    |   |  |  | | |  |  |  |                  Version 22.05.28                       
-     o-o   o  | o |  o  o--O                 See -help for usage                     
-                           |                                                         
-                        o--o      Donate: https://www.paypal.me/digressive           
+        o       o  o-o  o   o  o-o      o   o             o                                
+        |       | |     |   | |         |\ /|     o       |                                
+        o   o   o  o-o  |   |  o-o      | O |  oo   o-o  -o- o-o o-o   oo o-o   o-o o-o    
+         \ / \ /      | |   |     |     |   | | | | |  |  |  |-' |  | | | |  | |    |-'    
+          o   o   o--o   o-o  o--o      o   o o-o-| o  o  o  o-o o  o o-o-o  o  o-o o-o    
+
+        o   o  o    o    o                           Mike Galvin                           
+        |   |  |  o | o  |                         https://gal.vin                         
+        |   | -o-   |   -o- o  o                                                           
+        |   |  |  | | |  |  |  |                  Version 22.05.28                         
+         o-o   o  | o |  o  o--O                 See -help for usage                       
+                               |                                                           
+                            o--o      Donate: https://www.paypal.me/digressive             
 "
 }
 
