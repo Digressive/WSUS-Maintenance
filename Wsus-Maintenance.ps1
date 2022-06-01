@@ -397,10 +397,10 @@ else {
     ## If logging is configured then finish the log file.
     If ($LogPath)
     {
-        If (Test-Path -Path $Log)
+        ## This whole block is for e-mail, if it is configured.
+        If ($SmtpServer)
         {
-            ## This whole block is for e-mail, if it is configured.
-            If ($SmtpServer)
+            If (Test-Path -Path $Log)
             {
                 ## Default e-mail subject if none is configured.
                 If ($Null -eq $MailSubject)
@@ -440,10 +440,10 @@ else {
                     Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort
                 }
             }
-        }
 
-        else {
-            Write-Host -ForegroundColor Red -BackgroundColor Black -Object "There's no log file to email."
+            else {
+                Write-Host -ForegroundColor Red -BackgroundColor Black -Object "There's no log file to email."
+            }
         }
     }
 }
