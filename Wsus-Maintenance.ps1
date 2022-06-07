@@ -445,6 +445,7 @@ else {
                 Write-Host -ForegroundColor Red -BackgroundColor Black -Object "There's no log file to email."
             }
         }
+        ## End of Email block
     }
 }
 ## End
