@@ -111,7 +111,7 @@ Param(
     [alias("Port")]
     $WsusPort,
     [alias("L")]
-    $LogPath,
+    $LogPathUsr,
     [alias("LogRotate")]
     $LogHistory,
     [alias("Subject")]
@@ -187,8 +187,11 @@ If ($PSBoundParameters.Values.Count -eq 0 -or $Help)
 else {
     ## If logging is configured, start logging.
     ## If the log file already exists, clear it.
-    If ($LogPath)
+    If ($LogPathUsr)
     {
+        ## Clean User entered string
+        $LogPath = $LogPathUsr.trimend('\')
+
         ## Make sure the log directory exists.
         If ((Test-Path -Path $LogPath) -eq $False)
         {
@@ -215,7 +218,7 @@ else {
     {
         If ($Type -eq "Info")
         {
-            If ($LogPath)
+            If ($LogPathUsr)
             {
                 Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [INFO] $Evt"
             }
@@ -225,7 +228,7 @@ else {
 
         If ($Type -eq "Succ")
         {
-            If ($LogPath)
+            If ($LogPathUsr)
             {
                 Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [SUCCESS] $Evt"
             }
@@ -235,7 +238,7 @@ else {
 
         If ($Type -eq "Err")
         {
-            If ($LogPath)
+            If ($LogPathUsr)
             {
                 Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [ERROR] $Evt"
             }
@@ -245,7 +248,7 @@ else {
 
         If ($Type -eq "Conf")
         {
-            If ($LogPath)
+            If ($LogPathUsr)
             {
                 Add-Content -Path $Log -Encoding ASCII -Value "$Evt"
             }
@@ -282,7 +285,7 @@ else {
         Write-Log -Type Conf -Evt "-WsusSSL switch is:....$WsusSsl."
     }
 
-    If ($LogPath)
+    If ($LogPathUsr)
     {
         Write-Log -Type Conf -Evt "Logs directory:........$LogPath."
     }
@@ -361,7 +364,7 @@ else {
             ## If the WsusSsl switch is configured then connect to the WSUS server using SSL and if not then don't.
             If ($WsusSsl)
             {
-                If ($LogPath)
+                If ($LogPathUsr)
                 {
                     Invoke-Expression "Get-WsusServer -Name $WsusServer -PortNumber $WsusPort -UseSSL | Invoke-WsusServerCleanup -$CleanUpJob | Out-File -Append $Log -Encoding ASCII"
                 }
@@ -371,7 +374,7 @@ else {
             }
 
             else {
-                If ($LogPath)
+                If ($LogPathUsr)
                 {
                     Invoke-Expression "Get-WsusServer -Name $WsusServer -PortNumber $WsusPort | Invoke-WsusServerCleanup -$CleanUpJob | Out-File -Append $Log -Encoding ASCII"
                 }
@@ -395,7 +398,7 @@ else {
     }
 
     ## If logging is configured then finish the log file.
-    If ($LogPath)
+    If ($LogPathUsr)
     {
         ## This whole block is for e-mail, if it is configured.
         If ($SmtpServer)
