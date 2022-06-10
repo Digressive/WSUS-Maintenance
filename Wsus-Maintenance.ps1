@@ -129,6 +129,7 @@ Param(
     [alias("Pwd")]
     [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
     $SmtpPwd,
+    [switch]$Run,
     [switch]$WsusSsl,
     [switch]$UseSsl,
     [switch]$Help,
@@ -156,6 +157,7 @@ If ($NoBanner -eq $False)
 If ($PSBoundParameters.Values.Count -eq 0 -or $Help)
 {
     Write-Host -Object "Usage:
+    Use -Run to run the tool.
     From a terminal run: [path\]Wsus-Maintenance.ps1 -Server [WSUS Servername Name]
     This will run the maintenance jobs on the specified WSUS server
     Enable an SSL connection to the WSUS server with -WsusSsl
@@ -257,6 +259,23 @@ else {
         }
     }
 
+    ## If WSUS Server is null, set it to local
+    If ($Null -eq $WsusServer)
+    {
+        $WsusServer = $env:ComputerName
+    }
+
+    ## Default port if none is configured.
+    If ($Null -eq $WsusPort -And $WsusSsl -eq $False)
+    {
+        $WsusPort = "8530"
+    }
+
+    If ($Null -eq $WsusPort -And $WsusSsl)
+    {
+        $WsusPort = "8531"
+    }
+
     ## getting Windows Version info
     $OSVMaj = [environment]::OSVersion.Version | Select-Object -expand major
     $OSVMin = [environment]::OSVersion.Version | Select-Object -expand minor
@@ -339,16 +358,6 @@ else {
     ##
     ## Display current config ends here.
     ##
-
-    ## Default port if none is configured.
-    If ($Null -eq $WsusPort -And $WsusSsl -eq $False)
-    {
-        $WsusPort = "8530"
-    }
-
-    else {
-        $WsusPort = "8531"
-    }
 
     ## Run the Clean up process.
     Write-Log -Type Info -Evt "Connecting to WSUS server"
