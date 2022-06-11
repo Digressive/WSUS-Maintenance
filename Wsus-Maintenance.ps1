@@ -224,7 +224,7 @@ else {
             {
                 Add-Content -Path $Log -Encoding ASCII -Value "$(Get-DateFormat) [INFO] $Evt"
             }
-            
+
             Write-Host -Object "$(Get-DateFormat) [INFO] $Evt"
         }
 
