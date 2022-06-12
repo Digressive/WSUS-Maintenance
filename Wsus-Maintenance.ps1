@@ -429,27 +429,30 @@ else {
                 ## Setting the contents of the log to be the e-mail body.
                 $MailBody = Get-Content -Path $Log | Out-String
 
-                ## If an smtp password is configured, get the username and password together for authentication.
-                ## If an smtp password is not provided then send the e-mail without authentication and obviously no SSL.
-                If ($SmtpPwd)
+                ForEach ($MailAddress in $MailTo)
                 {
-                    $SmtpPwdEncrypt = Get-Content $SmtpPwd | ConvertTo-SecureString
-                    $SmtpCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ($SmtpUser, $SmtpPwdEncrypt)
-
-                    ## If -ssl switch is used, send the email with SSL.
-                    ## If it isn't then don't use SSL, but still authenticate with the credentials.
-                    If ($UseSsl)
+                    ## If an smtp password is configured, get the username and password together for authentication.
+                    ## If an smtp password is not provided then send the e-mail without authentication and obviously no SSL.
+                    If ($SmtpPwd)
                     {
-                        Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort -UseSsl -Credential $SmtpCreds
+                        $SmtpPwdEncrypt = Get-Content $SmtpPwd | ConvertTo-SecureString
+                        $SmtpCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ($SmtpUser, $SmtpPwdEncrypt)
+
+                        ## If -ssl switch is used, send the email with SSL.
+                        ## If it isn't then don't use SSL, but still authenticate with the credentials.
+                        If ($UseSsl)
+                        {
+                            Send-MailMessage -To $MailAddress -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort -UseSsl -Credential $SmtpCreds
+                        }
+
+                        else {
+                            Send-MailMessage -To $MailAddress -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort -Credential $SmtpCreds
+                        }
                     }
 
                     else {
-                        Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort -Credential $SmtpCreds
+                        Send-MailMessage -To $MailAddress -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort
                     }
-                }
-
-                else {
-                    Send-MailMessage -To $MailTo -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort
                 }
             }
 
