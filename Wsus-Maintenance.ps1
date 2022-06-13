@@ -263,6 +263,15 @@ else {
     If ($Null -eq $WsusServer)
     {
         $WsusServer = $env:ComputerName
+
+        try {
+            $WsusFeature = Get-Service WsusService -ErrorAction Stop
+        }
+
+        catch {
+            Write-Log -Type Err -Evt "WSUS is not installed on this local machine."
+            Exit
+        }
     }
 
     ## Default port if none is configured.
@@ -274,6 +283,12 @@ else {
     If ($Null -eq $WsusPort -And $WsusSsl)
     {
         $WsusPort = "8531"
+    }
+
+    If ($Null -eq $LogPathUsr -And $SmtpServer)
+    {
+        Write-Log -Type Err -Evt "You must specify -L [path\] to use the email log function."
+        Exit
     }
 
     ## getting Windows Version info
@@ -406,61 +421,57 @@ else {
         Get-ChildItem -Path "$LogPath\WSUS-Maint_*" -File | Where-Object CreationTime -lt (Get-Date).AddDays(-$LogHistory) | Remove-Item -Recurse
     }
 
-    ## If logging is configured then finish the log file.
-    If ($LogPathUsr)
+    ## This whole block is for e-mail, if it is configured.
+    If ($SmtpServer)
     {
-        ## This whole block is for e-mail, if it is configured.
-        If ($SmtpServer)
+        If (Test-Path -Path $Log)
         {
-            If (Test-Path -Path $Log)
+            ## Default e-mail subject if none is configured.
+            If ($Null -eq $MailSubject)
             {
-                ## Default e-mail subject if none is configured.
-                If ($Null -eq $MailSubject)
-                {
-                    $MailSubject = "WSUS Maintenance Utility Log"
-                }
+                $MailSubject = "WSUS Maintenance Utility Log"
+            }
 
-                ## Default Smtp Port if none is configured.
-                If ($Null -eq $SmtpSvrPort)
-                {
-                    $SmtpSvrPort = "25"
-                }
+            ## Default Smtp Port if none is configured.
+            If ($Null -eq $SmtpSvrPort)
+            {
+                $SmtpSvrPort = "25"
+            }
 
-                ## Setting the contents of the log to be the e-mail body.
-                $MailBody = Get-Content -Path $Log | Out-String
+            ## Setting the contents of the log to be the e-mail body.
+            $MailBody = Get-Content -Path $Log | Out-String
 
-                ForEach ($MailAddress in $MailTo)
+            ForEach ($MailAddress in $MailTo)
+            {
+                ## If an smtp password is configured, get the username and password together for authentication.
+                ## If an smtp password is not provided then send the e-mail without authentication and obviously no SSL.
+                If ($SmtpPwd)
                 {
-                    ## If an smtp password is configured, get the username and password together for authentication.
-                    ## If an smtp password is not provided then send the e-mail without authentication and obviously no SSL.
-                    If ($SmtpPwd)
+                    $SmtpPwdEncrypt = Get-Content $SmtpPwd | ConvertTo-SecureString
+                    $SmtpCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ($SmtpUser, $SmtpPwdEncrypt)
+
+                    ## If -ssl switch is used, send the email with SSL.
+                    ## If it isn't then don't use SSL, but still authenticate with the credentials.
+                    If ($UseSsl)
                     {
-                        $SmtpPwdEncrypt = Get-Content $SmtpPwd | ConvertTo-SecureString
-                        $SmtpCreds = New-Object System.Management.Automation.PSCredential -ArgumentList ($SmtpUser, $SmtpPwdEncrypt)
-
-                        ## If -ssl switch is used, send the email with SSL.
-                        ## If it isn't then don't use SSL, but still authenticate with the credentials.
-                        If ($UseSsl)
-                        {
-                            Send-MailMessage -To $MailAddress -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort -UseSsl -Credential $SmtpCreds
-                        }
-
-                        else {
-                            Send-MailMessage -To $MailAddress -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort -Credential $SmtpCreds
-                        }
+                        Send-MailMessage -To $MailAddress -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort -UseSsl -Credential $SmtpCreds
                     }
 
                     else {
-                        Send-MailMessage -To $MailAddress -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort
+                        Send-MailMessage -To $MailAddress -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort -Credential $SmtpCreds
                     }
                 }
-            }
 
-            else {
-                Write-Host -ForegroundColor Red -BackgroundColor Black -Object "There's no log file to email."
+                else {
+                    Send-MailMessage -To $MailAddress -From $MailFrom -Subject $MailSubject -Body $MailBody -SmtpServer $SmtpServer -Port $SmtpSvrPort
+                }
             }
         }
-        ## End of Email block
+
+        else {
+            Write-Host -ForegroundColor Red -BackgroundColor Black -Object "There's no log file to email."
+        }
     }
+    ## End of Email block
 }
 ## End
