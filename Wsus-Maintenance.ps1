@@ -18,7 +18,7 @@
 
 .ICONURI
 
-.EXTERNALMODULEDEPENDENCIES
+.EXTERNALMODULEDEPENDENCIES WSUS management PowerShell modules.
 
 .REQUIREDSCRIPTS
 
@@ -34,73 +34,7 @@
 
     .DESCRIPTION
     Runs the built-in maintenance/clean up routine for WSUS.
-    The device that the script is being run on must have the WSUS management tools installed.
-
-    To send a log file via e-mail using ssl and an SMTP password you must generate an encrypted password file.
-    The password file is unique to both the user and machine.
-
-    To create the password file run this command as the user and on the machine that will use the file:
-
-    $creds = Get-Credential
-    $creds.Password | ConvertFrom-SecureString | Set-Content C:\scripts\ps-script-pwd.txt
-
-    .PARAMETER Server
-    The WSUS server to run the maintenance routine on.
-
-    .PARAMETER Port
-    The port WSUS is running on the server.
-    If you do not configure this, the default port of 8530 will be used.
-    If the WsusSSL switch is used the default port will be 8531.
-
-    .PARAMETER WsusSsl
-    Use this option if your WSUS server uses SSL.
-
-    .PARAMETER NoBanner
-    Use this option to hide the ASCII art title in the console.
-
-    .PARAMETER L
-    The path to output the log file to.
-    The file name will be WSUS-Maint_YYYY-MM-dd_HH-mm-ss.log
-    Do not add a trailing \ backslash.
-
-    .PARAMETER LogRotate
-    Instructs the utility to remove logs older than a specified number of days.
-
-    .PARAMETER Help
-    Show usage help in the command line.
-
-    .PARAMETER Subject
-    The subject line for the e-mail log.
-    Encapsulate with single or double quotes.
-    If no subject is specified, the default of "WSUS Maintenance Utility Log" will be used.
-
-    .PARAMETER SendTo
-    The e-mail address the log should be sent to.
-
-    .PARAMETER From
-    The e-mail address the log should be sent from.
-
-    .PARAMETER Smtp
-    The DNS name or IP address of the SMTP server.
-
-    .PARAMETER SmtpPort
-    The Port that should be used for the SMTP server.
-
-    .PARAMETER User
-    The user account to authenticate to the SMTP server.
-
-    .PARAMETER Pwd
-    The txt file containing the encrypted password for SMTP authentication.
-
-    .PARAMETER UseSsl
-    Configures the utility to connect to the SMTP server using SSL.
-
-    .EXAMPLE
-    WSUS-Maintenance.ps1 -Server wsus01 -Port 8530 -L C:\scripts\logs -Subject 'Server: WSUS Cleanup'
-    -SendTo me@contoso.com -From wsus@contoso.com -Smtp smtp.outlook.com -User me@contoso.com -Pwd c:\scripts\ps-script-pwd.txt -UseSsl
-
-    The above command will run the built-in maintenance on the WSUS server wsus01 hosted on port 8530.
-    The log file will be output to C:\scripts\logs and sent via e-mail with a custom subject line.
+    Run with -help or no arguments for usage.
 #>
 
 ## Set up command line switches.
@@ -157,24 +91,33 @@ If ($NoBanner -eq $False)
 If ($PSBoundParameters.Values.Count -eq 0 -or $Help)
 {
     Write-Host -Object "Usage:
-    Use -Run to run the tool.
-    From a terminal run: [path\]Wsus-Maintenance.ps1 -Server [WSUS Servername Name]
-    This will run the maintenance jobs on the specified WSUS server
+    From a terminal run: [path\]Wsus-Maintenance.ps1 -Run
+    This will run the maintenance jobs on the local server
+
+    Use -Server [server name] to specify a remote server.
+    The local computer running the script must have WSUS management tools installed.
+
     Enable an SSL connection to the WSUS server with -WsusSsl
     Specify the port to use with -Port [port number]
     If none is specified then the default of 8530 will be used, or 8531 if SSL is used.
 
-    To output a log: -L [path]. To remove logs produced by the utility older than X days: -LogRotate [number].
+    To output a log: -L [path\].
+    To remove logs produced by the utility older than X days: -LogRotate [number].
     Run with no ASCII banner: -NoBanner
 
     To use the 'email log' function:
     Specify the subject line with -Subject ""'[subject line]'"" If you leave this blank a default subject will be used
     Make sure to encapsulate it with double & single quotes as per the example for Powershell to read it correctly.
+
     Specify the 'to' address with -SendTo [example@contoso.com]
+    For multiple address, separate with a comma.
+
     Specify the 'from' address with -From [example@contoso.com]
     Specify the SMTP server with -Smtp [smtp server name]
+
     Specify the port to use with the SMTP server with -Port [port number].
     If none is specified then the default of 25 will be used.
+
     Specify the user to access SMTP with -User [example@contoso.com]
     Specify the password file to use with -Pwd [path\]ps-script-pwd.txt.
     Use SSL for SMTP server connection with -UseSsl.

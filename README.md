@@ -2,18 +2,19 @@
 
 Clean up WSUS
 
-For full instructions and documentation, [visit my site.](https://gal.vin/utils/wsus-maint-utility/)
+For full change log and more information, [visit my site.](https://gal.vin/utils/wsus-maint-utility/)
+
+WSUS Maintenance Utility is available from:
+
+* [GitHub](https://github.com/Digressive/WSUS-Maintenance)
+* [The Microsoft PowerShell Gallery](https://www.powershellgallery.com/packages/Wsus-Maintenance)
 
 Please consider supporting my work:
 
-* Sign up [using Patreon.](https://www.patreon.com/mikegalvin)
-* Support with a one-time payment [using PayPal.](https://www.paypal.me/digressive)
+* Sign up using [Patreon](https://www.patreon.com/mikegalvin).
+* Support with a one-time donation using [PayPal](https://www.paypal.me/digressive).
 
-WSUS Maintenance Utility can also be downloaded from:
-
-* [The Microsoft PowerShell Gallery](https://www.powershellgallery.com/packages/Wsus-Maintenance)
-
-Join the [Discord](http://discord.gg/5ZsnJ5k) or Tweet me if you have questions: [@mikegalvin_](https://twitter.com/mikegalvin_)
+If you’d like to contact me, please leave a comment, send me a [tweet or DM](https://twitter.com/mikegalvin_), or you can join my [Discord server](https://discord.gg/5ZsnJ5k).
 
 -Mike
 
@@ -22,7 +23,7 @@ Join the [Discord](http://discord.gg/5ZsnJ5k) or Tweet me if you have questions:
 * It's designed to run either on a WSUS server itself or can be run from a remote machine.
 * The computer that is running the utility must have the WSUS management PowerShell modules installed.
 * The utility requires at least PowerShell 5.0
-* This utility has been tested on Windows 11, Windows 10, Windows Server 2022, Windows Server 2019 and Windows Server 2016.
+* This utility has been tested on Windows 11, Windows 10, Windows Server 2022, Windows Server 2019, Windows Server 2016.
 
 ## Generating A Password File
 
@@ -43,26 +44,27 @@ Here’s a list of all the command line switches and example configurations.
 
 | Command Line Switch | Description | Example |
 | ------------------- | ----------- | ------- |
-| -Server | The WSUS server to run the maintenance routine on. | wsus01 |
-| -Port | The port WSUS is running on the server. If you do not configure this, the default port of 8530 will be used. If the -WsusSSL switch is used the default port will be 8531. | 6969 |
-| -WsusSsl | Use this option if your WSUS server uses SSL. | N/A |
+| -Run | Run the maintenance routine on the local computer. | N/A |
+| -Server | The WSUS server to run the maintenance routine on. | [server name] |
+| -Port | The port WSUS is running on the server. If you do not configure this, the default port will be used. | [port number] |
+| -WsusSsl | Use this option if your WSUS server uses SSL. If you do not configure the port using the above, then the default SSL port will be used. | N/A |
+| -L | The path to output the log file to. | [path\] |
+| -LogRotate | Remove logs produced by the utility older than X days | [number] |
 | -NoBanner | Use this option to hide the ASCII art title in the console. | N/A |
-| -L | The path to output the log file to. The file name will be WSUS-Maint_YYYY-MM-dd_HH-mm-ss.log. Do not add a trailing \ backslash. | ```C:\scripts\logs``` |
-| -LogRotate | Instructs the utility to remove logs older than a specified number of days. | 30 |
-| -Help | Show usage instructions. | N/A |
-| -Subject | The subject line for the e-mail log. Encapsulate with single or double quotes. If no subject is specified, the default of "WSUS Maintenance Utility Log" will be used. | 'Server: Notification' |
-| -SendTo | The e-mail address the log should be sent to. | me@contoso.com |
-| -From | The e-mail address the log should be sent from. | WsusMaint@contoso.com |
-| -Smtp | The DNS name or IP address of the SMTP server. | smtp-mail.outlook.com OR smtp.office365.com |
-| -SmtpPort | The Port that should be used for the SMTP server. If none is specified then the default of 25 will be used. | 587 |
-| -User | The user account to authenticate to the SMTP server. | example@contoso.com |
-| -Pwd | The txt file containing the encrypted password for SMTP authentication. | ```C:\scripts\ps-script-pwd.txt``` |
+| -Help | Display usage information. No arguments also displays help. | N/A |
+| -Subject | Specify a subject line. If you leave this blank the default subject will be used | "'[Server: Notification]'" |
+| -SendTo | The e-mail address the log should be sent to. For multiple address, separate with a comma. | [example@contoso.com] |
+| -From | The e-mail address the log should be sent from. | [example@contoso.com] |
+| -Smtp | The DNS name or IP address of the SMTP server. | [smtp server address] |
+| -SmtpPort | The Port that should be used for the SMTP server. If none is specified then the default of 25 will be used. | [port number] |
+| -User | The user account to authenticate to the SMTP server. | [example@contoso.com] |
+| -Pwd | The txt file containing the encrypted password for SMTP authentication. | [path\]ps-script-pwd.txt |
 | -UseSsl | Configures the utility to connect to the SMTP server using SSL. | N/A |
 
 ## Example
 
 ``` txt
-WSUS-Maintenance.ps1 -Server wsus01 -L C:\scripts\logs -SendTo me@contoso.com -From WSUS-Maint@contoso.com -Smtp smtp.outlook.com -User me@contoso.com -Pwd c:\scripts\ps-script-pwd.txt -UseSsl
+[path\]Wsus-Maintenance.ps1 -Run
 ```
 
-The above command will run the maintenance on the server wsus01 using the default port, will generate a log file and send it via e-mail.
+This will run the maintenance jobs on the local server
