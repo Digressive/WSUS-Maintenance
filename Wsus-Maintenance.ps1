@@ -208,7 +208,7 @@ else {
         $WsusServer = $env:ComputerName
 
         try {
-            Get-Service WsusService -ErrorAction Stop
+            Get-Service WsusService -ErrorAction Stop | Out-Null
         }
 
         catch {
