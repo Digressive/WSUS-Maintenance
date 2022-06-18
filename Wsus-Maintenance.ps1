@@ -1,6 +1,6 @@
 ﻿<#PSScriptInfo
 
-.VERSION 22.05.28
+.VERSION 22.06.18
 
 .GUID 56dc6e4a-4f05-414c-9419-c575f17f581f
 
@@ -81,7 +81,7 @@ If ($NoBanner -eq $False)
         o   o  o    o    o                           Mike Galvin                           
         |   |  |  o | o  |                         https://gal.vin                         
         |   | -o-   |   -o- o  o                                                           
-        |   |  |  | | |  |  |  |                  Version 22.05.28                         
+        |   |  |  | | |  |  |  |                  Version 22.06.18                         
          o-o   o  | o |  o  o--O                 See -help for usage                       
                                |                                                           
                             o--o      Donate: https://www.paypal.me/digressive             
@@ -244,7 +244,7 @@ else {
     ## Display the current config and log if configured.
     ##
     Write-Log -Type Conf -Evt "************ Running with the following config *************."
-    Write-Log -Type Conf -Evt "Utility Version:.......22.05.28"
+    Write-Log -Type Conf -Evt "Utility Version:.......22.06.18"
     Write-Log -Type Conf -Evt "Hostname:..............$Env:ComputerName."
     Write-Log -Type Conf -Evt "Windows Version:.......$OSV."
     If ($WsusServer)
