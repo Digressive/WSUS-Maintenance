@@ -1,6 +1,6 @@
 # WSUS Maintenance Utility
 
-Clean up WSUS
+## Clean up WSUS
 
 For full change log and more information, [visit my site.](https://gal.vin/utils/wsus-maint-utility/)
 
@@ -20,12 +20,12 @@ Please report issues on Github via the issues tab.
 
 ## Features and Requirements
 
-* It's designed to run either on a WSUS server itself or can be run from a remote machine.
-* The computer that is running the utility must have the WSUS management PowerShell modules installed.
+* Designed to run on a WSUS server or can be run from a remote computer.
+* The computer must have the WSUS management PowerShell modules installed.
 * The utility requires at least PowerShell 5.0
-* This utility has been tested on Windows 11, Windows 10, Windows Server 2022, Windows Server 2019, Windows Server 2016.
+* Tested on Windows 11, Windows 10, Windows Server 2022, Windows Server 2019 and Windows Server 2016.
 
-## Generating A Password File
+## Generating A Password File For SMTP Authentication
 
 The password used for SMTP server authentication must be in an encrypted text file. To generate the password file, run the following command in PowerShell on the computer and logged in with the user that will be running the utility. When you run the command, you will be prompted for a username and password. Enter the username and password you want to use to authenticate to your SMTP server.
 
@@ -52,6 +52,7 @@ Here’s a list of all the command line switches and example configurations.
 | -LogRotate | Remove logs produced by the utility older than X days | [number] |
 | -NoBanner | Use this option to hide the ASCII art title in the console. | N/A |
 | -Help | Display usage information. No arguments also displays help. | N/A |
+| -Webhook | The txt file containing the URI for a webhook to send the log file to. | [path\]webhook.txt |
 | -Subject | Specify a subject line. If you leave this blank the default subject will be used | "'[Server: Notification]'" |
 | -SendTo | The e-mail address the log should be sent to. For multiple address, separate with a comma. | [example@contoso.com] |
 | -From | The e-mail address the log should be sent from. | [example@contoso.com] |
@@ -68,3 +69,81 @@ Here’s a list of all the command line switches and example configurations.
 ```
 
 This will run the maintenance jobs on the local server
+
+## Change Log
+
+### 2022-06-18: Version 22.06.18
+
+* Fixed Get-Service check outputting to console.
+
+### 2022-06-14: Version 22.05.28
+
+* Added new feature: log can now be emailed to multiple addresses.
+* Added checks and balances to help with configuration as I'm very aware that the initial configuration can be troublesome. Running the utility manually is a lot more friendly and step-by-step now.
+* Added -Help to give usage instructions in the terminal. Running the script with no options will also trigger the -help switch.
+* Cleaned user entered paths so that trailing slashes no longer break things or have otherwise unintended results.
+* Added -LogRotate [days] to removed old logs created by the utility.
+* Streamlined config report so non configured options are not shown.
+* Added donation link to the ASCII banner.
+* Cleaned up code, removed unneeded log noise.
+
+### 2021-12-08: Version 21.12.08
+
+* Configured logs path now is created, if it does not exist.
+* Added OS version info.
+* Added Utility version info.
+* Added Hostname info.
+* Added an option to specify the Port for SMTP communication.
+* Changed a variable to prevent conflicts with future PowerShell versions.
+
+### 2020-03-20: Version 20.03.20
+
+* Added code contribution from ideas@habs.homelinux.net.
+* Individual clean-up jobs now run separately.
+* Improved reporting.
+* Made slight improvements to documentation.
+
+### 2020-03-05: Version 20.03.03 ‘Burger’
+
+* Added SSL option for connecting to the WSUS server.
+* Made the -Port switch optional. If it is not specified, the default port is used. If -WsusSsl is specified, the default port for SSL is used.
+* Added config report.
+* Added ASCII banner art when run in the console.
+* Added option to disable the ASCII banner art.
+* Refactored code.
+* Fully backwards compatible.
+
+### 2019-09-04 v1.8
+
+* Added custom subject line for e-mail.
+
+### 2019-04-23 v1.7
+
+* The script will now not run the clean up process twice.
+* The script will now report if the service isn't running before starting.
+
+### 2017-10-16 v1.6
+
+* Changed SMTP authentication to require an encrypted password file.
+* Added instructions on how to generate an encrypted password file.
+
+### 2017-10-07 v1.5
+
+* Added necessary information to add the script to the PowerShell Gallery.
+
+### 2017-09-25 v1.4
+
+* Cleaned up formatting, minor changes to code for efficiency.
+
+### 2017-08-11 v1.3
+
+* Improved, cleaner logging. The log file is no longer produced from PowerShell's Transcript function.
+
+### 2017-07-22 v1.2
+
+* Improved commenting on the code for documentation purposes.
+* Added authentication and SSL options for e-mail notification.
+
+### 2017-05-22 v1.1
+
+* Added configuration via command line switches.

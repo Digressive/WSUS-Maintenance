@@ -63,6 +63,8 @@ Param(
     [alias("Pwd")]
     [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
     $SmtpPwd,
+    [Alias("Webhook")]
+    [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
     [switch]$Run,
     [switch]$WsusSsl,
     [switch]$UseSsl,
@@ -104,6 +106,9 @@ If ($PSBoundParameters.Values.Count -eq 0 -or $Help)
     To output a log: -L [path\].
     To remove logs produced by the utility older than X days: -LogRotate [number].
     Run with no ASCII banner: -NoBanner
+
+    To send the log to a webhook on job completion:
+    Specify a txt file containing the webhook URI with -Webhook [path\]webhook.txt
 
     To use the 'email log' function:
     Specify the subject line with -Subject ""'[subject line]'"" If you leave this blank a default subject will be used
@@ -202,6 +207,18 @@ else {
         }
     }
 
+    Function UpdateCheck()
+    {
+        $ScriptVersion = "22.06.18"
+        $RawSource = "https://raw.githubusercontent.com/Digressive/WSUS-Maintenance/master/Wsus-Maintenance.ps1"
+        $SourceCheck = Invoke-RestMethod -uri "$RawSource"
+        $VerCheck = Select-String -Pattern ".VERSION $ScriptVersion" -InputObject $SourceCheck
+        If ($null -eq $VerCheck)
+        {
+            Write-Log -Type Conf -Evt "*** There is an update available. ***"
+        }
+    }
+
     ## If WSUS Server is null, set it to local
     If ($Null -eq $WsusServer)
     {
@@ -243,75 +260,61 @@ else {
     ##
     ## Display the current config and log if configured.
     ##
-    Write-Log -Type Conf -Evt "************ Running with the following config *************."
-    Write-Log -Type Conf -Evt "Utility Version:.......22.06.18"
-    Write-Log -Type Conf -Evt "Hostname:..............$Env:ComputerName."
-    Write-Log -Type Conf -Evt "Windows Version:.......$OSV."
+    Write-Log -Type Conf -Evt "--- Running with the following config ---"
+    Write-Log -Type Conf -Evt "Utility Version: 22.06.18"
+    UpdateCheck ## Run Update checker function
+    Write-Log -Type Conf -Evt "Hostname: $Env:ComputerName."
+    Write-Log -Type Conf -Evt "Windows Version: $OSV."
     If ($WsusServer)
     {
-        Write-Log -Type Conf -Evt "WSUS Server name:......$WsusServer."
+        Write-Log -Type Conf -Evt "WSUS Server name: $WsusServer."
     }
 
     If ($WsusPort)
     {
-        Write-Log -Type Conf -Evt "WSUS Server port:......$WsusPort."
+        Write-Log -Type Conf -Evt "WSUS Server port: $WsusPort."
     }
 
     If ($WsusSsl)
     {
-        Write-Log -Type Conf -Evt "-WsusSSL switch is:....$WsusSsl."
+        Write-Log -Type Conf -Evt "-WsusSSL switch is: $WsusSsl."
     }
 
     If ($LogPathUsr)
     {
-        Write-Log -Type Conf -Evt "Logs directory:........$LogPath."
+        Write-Log -Type Conf -Evt "Logs directory: $LogPath."
     }
 
-    If ($Null -ne $LogHistory)
+    If ($Webh)
     {
-        Write-Log -Type Conf -Evt "Logs to keep:..........$LogHistory days."
+        Write-Log -Type Conf -Evt "Webhook: Configured"
     }
 
     If ($MailTo)
     {
-        Write-Log -Type Conf -Evt "E-mail log to:.........$MailTo."
+        Write-Log -Type Conf -Evt "E-mail log to: $MailTo."
     }
 
     If ($MailFrom)
     {
-        Write-Log -Type Conf -Evt "E-mail log from:.......$MailFrom."
+        Write-Log -Type Conf -Evt "E-mail log from: $MailFrom."
     }
 
     If ($MailSubject)
     {
-        Write-Log -Type Conf -Evt "E-mail subject:........$MailSubject."
+        Write-Log -Type Conf -Evt "E-mail subject: $MailSubject."
     }
 
     If ($SmtpServer)
     {
-        Write-Log -Type Conf -Evt "SMTP server is:........$SmtpServer."
-    }
-
-    If ($SmtpSvrPort)
-    {
-        Write-Log -Type Conf -Evt "SMTP Port:.............$SmtpSvrPort."
+        Write-Log -Type Conf -Evt "SMTP server: Configured."
     }
 
     If ($SmtpUser)
     {
-        Write-Log -Type Conf -Evt "SMTP user is:..........$SmtpUser."
+        Write-Log -Type Conf -Evt "SMTP auth: Configured."
     }
-
-    If ($SmtpPwd)
-    {
-        Write-Log -Type Conf -Evt "SMTP pwd file:.........$SmtpPwd."
-    }
-
-    If ($SmtpServer)
-    {
-        Write-Log -Type Conf -Evt "-UseSSL switch is:.....$UseSsl."
-    }
-    Write-Log -Type Conf -Evt "************************************************************"
+    Write-Log -Type Conf -Evt "---"
     Write-Log -Type Info -Evt "Process started"
     ##
     ## Display current config ends here.
@@ -416,5 +419,27 @@ else {
         }
     }
     ## End of Email block
+
+    ## Webhook block
+    If ($Webh)
+    {
+        $WebHookUri = Get-Content $Webh
+        $WebHookArr = @()
+
+        $title       = "WSUS Maintenance Utility"
+        $description = Get-Content -Path $Log | Out-String
+
+        $WebHookObj = [PSCustomObject]@{
+            title = $title
+            description = $description
+        }
+
+        $WebHookArr += $WebHookObj
+        $payload = [PSCustomObject]@{
+            embeds = $WebHookArr
+        }
+
+        Invoke-RestMethod -Uri $WebHookUri -Body ($payload | ConvertTo-Json -Depth 2) -Method Post -ContentType 'application/json'
+    }
 }
 ## End
