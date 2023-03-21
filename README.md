@@ -72,6 +72,12 @@ This will run the maintenance jobs on the local server
 
 ## Change Log
 
+### 2023-03-21: Version 23.03.21
+
+* Removed specific SMTP config info from config report.
+* Added script update checker - shows if an update is available in the log and console.
+* Added webhook option to send log file to.
+
 ### 2022-06-18: Version 22.06.18
 
 * Fixed Get-Service check outputting to console.
