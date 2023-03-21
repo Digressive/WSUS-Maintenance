@@ -1,6 +1,6 @@
 ﻿<#PSScriptInfo
 
-.VERSION 22.06.18
+.VERSION 23.03.21
 
 .GUID 56dc6e4a-4f05-414c-9419-c575f17f581f
 
@@ -41,28 +41,28 @@
 [CmdletBinding()]
 Param(
     [alias("Server")]
-    [string]$WsusServer,
+    $WsusServer,
     [alias("Port")]
-    [string]$WsusPort,
+    $WsusPort,
     [alias("L")]
-    [string]$LogPathUsr,
+    $LogPathUsr,
     [alias("LogRotate")]
-    [string]$LogHistory,
+    $LogHistory,
     [alias("Subject")]
-    [string]$MailSubject,
+    $MailSubject,
     [alias("SendTo")]
-    [string]$MailTo,
+    $MailTo,
     [alias("From")]
-    [string]$MailFrom,
+    $MailFrom,
     [alias("Smtp")]
-    [string]$SmtpServer,
+    $SmtpServer,
     [alias("SmtpPort")]
-    [string]$SmtpSvrPort,
+    $SmtpSvrPort,
     [alias("User")]
-    [string]$SmtpUser,
+    $SmtpUser,
     [alias("Pwd")]
     [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
-    [string]$SmtpPwd,
+    $SmtpPwd,
     [Alias("Webhook")]
     [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
     [string]$Webh,
@@ -84,7 +84,7 @@ If ($NoBanner -eq $False)
         o   o  o    o    o                           Mike Galvin                           
         |   |  |  o | o  |                         https://gal.vin                         
         |   | -o-   |   -o- o  o                                                           
-        |   |  |  | | |  |  |  |                  Version 22.06.18                         
+        |   |  |  | | |  |  |  |                  Version 23.03.21                         
          o-o   o  | o |  o  o--O                 See -help for usage                       
                                |                                                           
                             o--o      Donate: https://www.paypal.me/digressive             
@@ -210,7 +210,7 @@ else {
 
     Function UpdateCheck()
     {
-        $ScriptVersion = "22.06.18"
+        $ScriptVersion = "23.03.21"
         $RawSource = "https://raw.githubusercontent.com/Digressive/WSUS-Maintenance/master/Wsus-Maintenance.ps1"
         $SourceCheck = Invoke-RestMethod -uri "$RawSource"
         $VerCheck = Select-String -Pattern ".VERSION $ScriptVersion" -InputObject $SourceCheck
@@ -221,7 +221,7 @@ else {
     }
 
     ## If WSUS Server is null, set it to local
-    If ($Null -eq $WsusServer)
+    If ($null -eq $WsusServer)
     {
         $WsusServer = $env:ComputerName
 
@@ -236,17 +236,17 @@ else {
     }
 
     ## Default port if none is configured.
-    If ($Null -eq $WsusPort -And $WsusSsl -eq $False)
+    If ($null -eq $WsusPort -And $WsusSsl -eq $False)
     {
         $WsusPort = "8530"
     }
 
-    If ($Null -eq $WsusPort -And $WsusSsl)
+    If ($null -eq $WsusPort -And $WsusSsl)
     {
         $WsusPort = "8531"
     }
 
-    If ($Null -eq $LogPathUsr -And $SmtpServer)
+    If ($null -eq $LogPathUsr -And $SmtpServer)
     {
         Write-Log -Type Err -Evt "You must specify -L [path\] to use the email log function."
         Exit
@@ -262,7 +262,7 @@ else {
     ## Display the current config and log if configured.
     ##
     Write-Log -Type Conf -Evt "--- Running with the following config ---"
-    Write-Log -Type Conf -Evt "Utility Version: 22.06.18"
+    Write-Log -Type Conf -Evt "Utility Version: 23.03.21"
     UpdateCheck ## Run Update checker function
     Write-Log -Type Conf -Evt "Hostname: $Env:ComputerName."
     Write-Log -Type Conf -Evt "Windows Version: $OSV."
@@ -361,7 +361,7 @@ else {
 
     Write-Log -Type Info -Evt "Process finished"
 
-    If ($Null -ne $LogHistory)
+    If ($null -ne $LogHistory)
     {
         ## Cleanup logs.
         Write-Log -Type Info -Evt "Deleting logs older than: $LogHistory days"
@@ -374,13 +374,13 @@ else {
         If (Test-Path -Path $Log)
         {
             ## Default e-mail subject if none is configured.
-            If ($Null -eq $MailSubject)
+            If ($null -eq $MailSubject)
             {
                 $MailSubject = "WSUS Maintenance Utility Log"
             }
 
             ## Default Smtp Port if none is configured.
-            If ($Null -eq $SmtpSvrPort)
+            If ($null -eq $SmtpSvrPort)
             {
                 $SmtpSvrPort = "25"
             }
