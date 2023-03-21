@@ -41,30 +41,31 @@
 [CmdletBinding()]
 Param(
     [alias("Server")]
-    $WsusServer,
+    [string]$WsusServer,
     [alias("Port")]
-    $WsusPort,
+    [string]$WsusPort,
     [alias("L")]
-    $LogPathUsr,
+    [string]$LogPathUsr,
     [alias("LogRotate")]
-    $LogHistory,
+    [string]$LogHistory,
     [alias("Subject")]
-    $MailSubject,
+    [string]$MailSubject,
     [alias("SendTo")]
-    $MailTo,
+    [string]$MailTo,
     [alias("From")]
-    $MailFrom,
+    [string]$MailFrom,
     [alias("Smtp")]
-    $SmtpServer,
+    [string]$SmtpServer,
     [alias("SmtpPort")]
-    $SmtpSvrPort,
+    [string]$SmtpSvrPort,
     [alias("User")]
-    $SmtpUser,
+    [string]$SmtpUser,
     [alias("Pwd")]
     [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
-    $SmtpPwd,
+    [string]$SmtpPwd,
     [Alias("Webhook")]
     [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
+    [string]$Webh,
     [switch]$Run,
     [switch]$WsusSsl,
     [switch]$UseSsl,
