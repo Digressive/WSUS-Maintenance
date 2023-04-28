@@ -1,6 +1,6 @@
 ﻿<#PSScriptInfo
 
-.VERSION 23.03.21
+.VERSION 23.04.28
 
 .GUID 56dc6e4a-4f05-414c-9419-c575f17f581f
 
@@ -84,7 +84,7 @@ If ($NoBanner -eq $False)
         o   o  o    o    o                           Mike Galvin                           
         |   |  |  o | o  |                         https://gal.vin                         
         |   | -o-   |   -o- o  o                                                           
-        |   |  |  | | |  |  |  |                  Version 23.03.21                         
+        |   |  |  | | |  |  |  |                  Version 23.04.28                         
          o-o   o  | o |  o  o--O                 See -help for usage                       
                                |                                                           
                             o--o      Donate: https://www.paypal.me/digressive             
@@ -208,15 +208,23 @@ else {
         }
     }
 
+    ## Function for Update Check
     Function UpdateCheck()
     {
-        $ScriptVersion = "23.03.21"
+        $ScriptVersion = "23.04.28"
         $RawSource = "https://raw.githubusercontent.com/Digressive/WSUS-Maintenance/master/Wsus-Maintenance.ps1"
-        $SourceCheck = Invoke-RestMethod -uri "$RawSource"
-        $VerCheck = Select-String -Pattern ".VERSION $ScriptVersion" -InputObject $SourceCheck
-        If ($null -eq $VerCheck)
-        {
-            Write-Log -Type Conf -Evt "*** There is an update available. ***"
+
+        try {
+            $SourceCheck = Invoke-RestMethod -uri "$RawSource"
+            $VerCheck = $SourceCheck -split '\n' | Select-String -Pattern ".VERSION $ScriptVersion" -SimpleMatch -CaseSensitive -Quiet
+
+            If ($VerCheck -ne $True)
+            {
+                Write-Log -Type Conf -Evt "*** There is an update available. ***"
+            }
+        }
+
+        catch {
         }
     }
 
@@ -262,7 +270,7 @@ else {
     ## Display the current config and log if configured.
     ##
     Write-Log -Type Conf -Evt "--- Running with the following config ---"
-    Write-Log -Type Conf -Evt "Utility Version: 23.03.21"
+    Write-Log -Type Conf -Evt "Utility Version: 23.04.28"
     UpdateCheck ## Run Update checker function
     Write-Log -Type Conf -Evt "Hostname: $Env:ComputerName."
     Write-Log -Type Conf -Evt "Windows Version: $OSV."

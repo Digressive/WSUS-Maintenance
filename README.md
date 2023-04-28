@@ -72,6 +72,10 @@ This will run the maintenance jobs on the local server
 
 ## Change Log
 
+### 2023-04-28: Version 23.04.28
+
+* Minor improvement to update checker. If the internet is not reachable it silently errors out.
+
 ### 2023-03-21: Version 23.03.21
 
 * Removed specific SMTP config info from config report.
