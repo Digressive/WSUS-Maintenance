@@ -12,7 +12,7 @@
 
 .TAGS WSUS Windows Server Update Services Maintenance Clean up
 
-.LICENSEURI
+.LICENSEURI https://github.com/Digressive/Windows-Server-Status-Monitor?tab=MIT-1-ov-file
 
 .PROJECTURI https://gal.vin/utils/wsus-maint-utility/
 
